@@ -31,8 +31,14 @@ protected:
 	
 	
 	//Character Stats
-	UPROPERTY(EditAnywhere,Category="Base Stats")
-	float Health;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	float MaxHealth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	float CurrentHealth;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	float MaxStamina;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	float CurrentStamina;
 	UPROPERTY(EditAnywhere,Category="Base Stats")
 	float MaxMovementSpeed = 600;
 	UPROPERTY(EditAnywhere,Category="Base Stats")
