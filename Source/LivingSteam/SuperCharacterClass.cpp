@@ -7,6 +7,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 
+
 // Sets default values
 ASuperCharacterClass::ASuperCharacterClass()
 {
@@ -93,13 +94,16 @@ void ASuperCharacterClass::Run()
 	}
 }
 
-void ASuperCharacterClass::TakeDamage(float DamageAmount)
+float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 
 {
 	CurrentHealth-=DamageAmount;
 	if(CurrentHealth<=0)
 	{
-		//KillPlayer
+	
+		UGameplayStatics::GetGameMode(GetWorld());
 	}
+
+	return 0;
 }
 
 void ASuperCharacterClass::Attack()
