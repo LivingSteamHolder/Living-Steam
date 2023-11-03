@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
 #include "SuperCharacterClass.generated.h"
+
 
 UCLASS()
 class LIVINGSTEAM_API ASuperCharacterClass : public ACharacter
@@ -69,7 +71,7 @@ protected:
 	void Run();
 	
 	//PlayerState
-	void TakeDamage(float DamageAmount);
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Attack();
 
 };
