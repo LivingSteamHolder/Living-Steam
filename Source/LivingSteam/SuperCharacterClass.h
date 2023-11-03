@@ -32,17 +32,21 @@ protected:
 	
 	//Character Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
-	float MaxHealth;
+	float MaxHealth = 100;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
 	float CurrentHealth;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
-	float MaxStamina;
+	float MaxStamina = 10;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
 	float CurrentStamina;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	float StaminaRegen = 1.f;
 	UPROPERTY(EditAnywhere,Category="Base Stats")
 	float MaxMovementSpeed = 600;
 	UPROPERTY(EditAnywhere,Category="Base Stats")
 	float RunningSpeedMultiplyer = 2;
+	UPROPERTY(EditAnywhere,Category="Base Stats")
+	bool bIsRunning = false;
 
 	//Components
 
@@ -65,6 +69,7 @@ protected:
 	void Run();
 	
 	//PlayerState
-	void TakeDamage();
-	
+	void TakeDamage(float DamageAmount);
+	virtual void Attack();
+
 };

@@ -23,4 +23,19 @@ void AMeleeCharacter::Tick(float DeltaTime)
 void AMeleeCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAction("ShieldBlock",IE_Pressed,this, &AMeleeCharacter::ShieldBlock);
+	PlayerInputComponent->BindAction("ShieldBlock",IE_Released,this,&AMeleeCharacter::ShieldBlock);
 }
+
+void AMeleeCharacter::Attack()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Melee Attacking"))
+	//Attack
+}
+
+void AMeleeCharacter::ShieldBlock()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Melee Blocking"))
+	//Use shield
+}
+

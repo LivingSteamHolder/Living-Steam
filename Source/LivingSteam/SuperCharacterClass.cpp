@@ -34,13 +34,22 @@ ASuperCharacterClass::ASuperCharacterClass()
 void ASuperCharacterClass::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CurrentHealth = MaxHealth;
+	CurrentStamina = MaxStamina;
 }
 
 // Called every frame
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (CurrentStamina<MaxStamina && bIsRunning == false)
+	{
+		CurrentStamina+=DeltaTime*StaminaRegen;
+	}
+	if (bIsRunning==true && CurrentStamina>=0)
+	{
+		CurrentStamina-=DeltaTime;
+	}
 
 }
 
@@ -55,6 +64,7 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	//Bind Action
 	PlayerInputComponent->BindAction("Run",IE_Pressed,this, &ASuperCharacterClass::Run);
 	PlayerInputComponent->BindAction("Run",IE_Released,this,&ASuperCharacterClass::Run);
+	PlayerInputComponent->BindAction("Attack",IE_Pressed,this,&ASuperCharacterClass::Attack);
 }
 
 void ASuperCharacterClass::MoveForward(const float Axis)
@@ -69,16 +79,37 @@ void ASuperCharacterClass::MoveRight(const float Axis)
 
 void ASuperCharacterClass::Run()
 {
+
 	CharacterMovement = GetCharacterMovement();
 	if(CharacterMovement->MaxWalkSpeed == MaxMovementSpeed)
+	{
 		CharacterMovement->MaxWalkSpeed *= RunningSpeedMultiplyer;
+		bIsRunning = true;
+	}
 	else
+	{
 		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
+		bIsRunning = false;
+	}
 }
 
-void ASuperCharacterClass::TakeDamage()
+void ASuperCharacterClass::TakeDamage(float DamageAmount)
 {
+	CurrentHealth-=DamageAmount;
+	if(CurrentHealth<=0)
+	{
+		//KillPlayer
+	}
 }
+
+void ASuperCharacterClass::Attack()
+{
+	//Do nothing
+}
+
+
+
+
 
 
 
