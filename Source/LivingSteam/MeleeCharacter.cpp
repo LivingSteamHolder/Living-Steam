@@ -7,7 +7,7 @@ AMeleeCharacter::AMeleeCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
 }
 
 void AMeleeCharacter::BeginPlay()
