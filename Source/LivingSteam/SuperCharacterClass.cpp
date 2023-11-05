@@ -28,7 +28,7 @@ ASuperCharacterClass::ASuperCharacterClass()
 	//Mesh Component
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	MeshComp->SetupAttachment(RootComponent);
-	
+	AutoPossessPlayer = EAutoReceiveInput::Player0;
 }
 
 // Called when the game starts or when spawned
@@ -37,6 +37,9 @@ void ASuperCharacterClass::BeginPlay()
 	Super::BeginPlay();
 	CurrentHealth = MaxHealth;
 	CurrentStamina = MaxStamina;
+
+	UGameplayStatics::GetPlayerController(this,0)->SetShowMouseCursor(true);
+
 }
 
 // Called every frame
@@ -51,6 +54,8 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	{
 		CurrentStamina-=DeltaTime;
 	}
+
+	SetActorRotation(LookAtMouse());
 
 }
 
@@ -70,12 +75,12 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void ASuperCharacterClass::MoveForward(const float Axis)
 {
-	AddMovementInput(FRotator(0,45,0).RotateVector(GetActorForwardVector()) * Axis);
+	AddMovementInput(FRotator(0,45 - LookAtMouse().Yaw,0).RotateVector(GetActorForwardVector()) * Axis);
 }
 
 void ASuperCharacterClass::MoveRight(const float Axis)
 {
-	AddMovementInput((FRotator(0,45,0).RotateVector(GetActorRightVector()) * Axis));
+	AddMovementInput((FRotator(0,45 - LookAtMouse().Yaw,0).RotateVector(GetActorRightVector()) * Axis));
 }
 
 void ASuperCharacterClass::Run()
@@ -92,6 +97,22 @@ void ASuperCharacterClass::Run()
 		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
 		bIsRunning = false;
 	}
+}
+
+FRotator ASuperCharacterClass::LookAtMouse()
+{
+	FVector2D MousePosition;
+	UGameplayStatics::GetPlayerController(this, 0)->GetMousePosition(MousePosition.X, MousePosition.Y);
+
+	FVector2D CharacterScreenPosition;
+	UGameplayStatics::ProjectWorldToScreen(UGameplayStatics::GetPlayerController(this,0), GetActorLocation(), CharacterScreenPosition);
+
+	FVector2D ScreenOffset = MousePosition - CharacterScreenPosition;
+	float DesiredYaw = FMath::RadiansToDegrees(FMath::Atan2(ScreenOffset.Y, ScreenOffset.X));
+
+	FRotator NewRotation = GetActorRotation();
+	NewRotation.Yaw = DesiredYaw;
+	return NewRotation;
 }
 
 float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 

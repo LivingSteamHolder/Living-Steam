@@ -31,7 +31,6 @@ public:
 protected:
 	//Variables
 	
-	
 	//Character Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
 	float MaxHealth = 100;
@@ -69,6 +68,7 @@ protected:
 	void MoveForward(const float Axis);
 	void MoveRight(const float Axis);
 	void Run();
+	FRotator LookAtMouse();
 	
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;

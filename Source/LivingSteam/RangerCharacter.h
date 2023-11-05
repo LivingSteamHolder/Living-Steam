@@ -28,7 +28,6 @@ public:
 
 	//Combat
 	virtual void Attack() override;
-	
 };
 
 
