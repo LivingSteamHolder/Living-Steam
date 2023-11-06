@@ -28,6 +28,13 @@ public:
 
 	//Combat
 	virtual void Attack() override;
+private:
+	//Variables
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* DashAction;
+	
+	//Movement
+	void Dash(const FInputActionValue& Value);
 };
 
 

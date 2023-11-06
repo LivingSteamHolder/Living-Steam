@@ -28,15 +28,21 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:
-	APlayerController* PC;
 
+
+	bool bRechargeStamina = true;
+	
 	UPROPERTY(EditAnywhere,Category="Input")
 	class UInputMappingContext* PlayerMapping;
 
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* MoveAction;
+	
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* RunAction;
 protected:
 	//Variables
+	APlayerController* PC;
 	
 	//Character Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
@@ -74,9 +80,11 @@ protected:
 	//Movement
 	void MoveForward(const float Axis);
 	void MoveRight(const float Axis);
-	void Run();
-	void LookAtMouse(int ControllIndex);
+	//void Run();
+	void LookAtMouse();
 	void Move(const FInputActionValue& Value);
+	void Run(const FInputActionValue& Value);
+
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Attack();

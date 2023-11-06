@@ -65,14 +65,12 @@ void ASuperCharacterClass::BeginPlay()
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (CurrentStamina<MaxStamina && bIsRunning == false)
+	if (bRechargeStamina)
 	{
 		CurrentStamina+=DeltaTime*StaminaRegen;
 	}
-	if (bIsRunning==true && CurrentStamina>=0)
-	{
-		CurrentStamina-=DeltaTime;
-	}
+
+	LookAtMouse();
 }
 
 // Called to bind functionality to input
@@ -84,53 +82,18 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Move);
+		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Run);
+		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Run);
 	}
-	//PlayerInputComponent->BindAxis("MoveForward",this,&ASuperCharacterClass::MoveForward);
-	//PlayerInputComponent->BindAxis("MoveRight",this,&ASuperCharacterClass::MoveRight);
 
-	//Bind Action
-	PlayerInputComponent->BindAction("Run",IE_Pressed,this, &ASuperCharacterClass::Run);
-	PlayerInputComponent->BindAction("Run",IE_Released,this,&ASuperCharacterClass::Run);
 	PlayerInputComponent->BindAction("Attack",IE_Pressed,this,&ASuperCharacterClass::Attack);
 }
 
-void ASuperCharacterClass::MoveForward(const float Axis)
-{
-	const FRotator Rotation = PC->GetControlRotation();
-	const FRotator YawRotation(0,Rotation.Yaw + 45,0.f);
 
-	const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	AddMovementInput(ForwardDirection * Axis);
-}
-
-void ASuperCharacterClass::MoveRight(const float Axis)
-{
-	const FRotator Rotation = PC->GetControlRotation();
-	const FRotator YawRotation(0,Rotation.Yaw + 45,0.f);
-	const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	AddMovementInput((RightDirection * Axis));
-}
-
-void ASuperCharacterClass::Run()
-{
-
-	CharacterMovement = GetCharacterMovement();
-	if(CharacterMovement->MaxWalkSpeed == MaxMovementSpeed)
-	{
-		CharacterMovement->MaxWalkSpeed *= RunningSpeedMultiplyer;
-		bIsRunning = true;
-	}
-	else
-	{
-		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
-		bIsRunning = false;
-	}
-}
-
-void ASuperCharacterClass::LookAtMouse(int ControllIndex)
+void ASuperCharacterClass::LookAtMouse()
 {
 	FVector2D MousePosition;
-	UGameplayStatics::GetPlayerController(this, ControllIndex)->GetMousePosition(MousePosition.X, MousePosition.Y);
+	PC->GetMousePosition(MousePosition.X, MousePosition.Y);
 	FVector2D CharacterScreenPosition;
 	UGameplayStatics::ProjectWorldToScreen(UGameplayStatics::GetPlayerController(this,0), GetActorLocation(), CharacterScreenPosition);
 	FVector2D ScreenOffset = MousePosition - CharacterScreenPosition;
@@ -153,6 +116,26 @@ void ASuperCharacterClass::Move(const FInputActionValue& Value)
 		AddMovementInput(ForwardDirection,MovementVector.Y);
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(RightDirection,MovementVector.X);
+	}
+}
+
+void ASuperCharacterClass::Run(const FInputActionValue& Value)
+{
+	bool Running = Value.Get<bool>();
+
+	if(Running && CurrentStamina >= 0)
+	{
+		bRechargeStamina = false;
+		CharacterMovement = GetCharacterMovement();
+		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed * RunningSpeedMultiplyer;
+		CurrentStamina-=GetWorld()->GetDeltaSeconds();
+		UE_LOG(LogTemp,Warning,TEXT("RUNNING"));
+	}
+	else
+	{
+		UE_LOG(LogTemp,Warning,TEXT("NOT RUNNING"));
+		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
+		bRechargeStamina = true;
 	}
 }
 
