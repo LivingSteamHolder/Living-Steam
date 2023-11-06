@@ -4,10 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "Kismet/GameplayStatics.h"
+#include "InputActionValue.h"
 #include "SuperCharacterClass.generated.h"
 
-
+class UInputAction;
 UCLASS()
 class LIVINGSTEAM_API ASuperCharacterClass : public ACharacter
 {
@@ -27,7 +27,14 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+private:
+	APlayerController* PC;
 
+	UPROPERTY(EditAnywhere,Category="Input")
+	class UInputMappingContext* PlayerMapping;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* MoveAction;
 protected:
 	//Variables
 	
@@ -68,8 +75,8 @@ protected:
 	void MoveForward(const float Axis);
 	void MoveRight(const float Axis);
 	void Run();
-	FRotator LookAtMouse();
-	
+	void LookAtMouse(int ControllIndex);
+	void Move(const FInputActionValue& Value);
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Attack();
