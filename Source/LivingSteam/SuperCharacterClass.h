@@ -28,42 +28,42 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 private:
-
-
+	//Variables
 	bool bRechargeStamina = true;
+
 	
 	UPROPERTY(EditAnywhere,Category="Input")
 	class UInputMappingContext* PlayerMapping;
 
+	//InputAction
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* MoveAction;
 	
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* RunAction;
-protected:
-	//Variables
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* LookAction;
+	
 	APlayerController* PC;
 	
 	//Character Stats
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float MaxHealth = 100;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float CurrentHealth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float MaxStamina = 10;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float CurrentStamina;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float StaminaRegen = 1.f;
-	UPROPERTY(EditAnywhere,Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float MaxMovementSpeed = 600;
-	UPROPERTY(EditAnywhere,Category="Base Stats")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float RunningSpeedMultiplyer = 2;
-	UPROPERTY(EditAnywhere,Category="Base Stats")
-	bool bIsRunning = false;
-
+	
 	//Components
-
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComp;
 
@@ -78,10 +78,7 @@ protected:
 	//Funktioner
 
 	//Movement
-	void MoveForward(const float Axis);
-	void MoveRight(const float Axis);
-	//void Run();
-	void LookAtMouse();
+	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 

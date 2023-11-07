@@ -21,14 +21,14 @@ ASuperCharacterClass::ASuperCharacterClass()
 	//SpringArm Component
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 500;
-	SpringArmComp->SocketOffset = FVector(0,0,250);
+	SpringArmComp->TargetArmLength = 0;
+	SpringArmComp->SocketOffset = FVector(0,0,0);
 	SpringArmComp->SetRelativeRotation(FRotator(0,0,0));
 
 	//Camera Component
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("PlayerCamera");
 	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);
-	CameraComp->SetRelativeRotation(FRotator(-20,0,0));
+	CameraComp->SetRelativeRotation(FRotator(0,0,0));
 	CameraComp->SetProjectionMode(ECameraProjectionMode::Perspective);
 	//Mesh Component
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
@@ -54,11 +54,7 @@ void ASuperCharacterClass::BeginPlay()
 			SubSystem->AddMappingContext(PlayerMapping,0);
 		}
 		PC->SetControlRotation(GetActorRotation());
-		
 	}
-	
-	UGameplayStatics::GetPlayerController(this,0)->SetShowMouseCursor(true);
-
 }
 
 // Called every frame
@@ -69,8 +65,6 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	{
 		CurrentStamina+=DeltaTime*StaminaRegen;
 	}
-
-	LookAtMouse();
 }
 
 // Called to bind functionality to input
@@ -84,24 +78,17 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(MoveAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Move);
 		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Run);
 		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Run);
+		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
 	}
 
 	PlayerInputComponent->BindAction("Attack",IE_Pressed,this,&ASuperCharacterClass::Attack);
 }
 
-
-void ASuperCharacterClass::LookAtMouse()
+void ASuperCharacterClass::Look(const FInputActionValue& Value)
 {
-	FVector2D MousePosition;
-	PC->GetMousePosition(MousePosition.X, MousePosition.Y);
-	FVector2D CharacterScreenPosition;
-	UGameplayStatics::ProjectWorldToScreen(UGameplayStatics::GetPlayerController(this,0), GetActorLocation(), CharacterScreenPosition);
-	FVector2D ScreenOffset = MousePosition - CharacterScreenPosition;
-	float DesiredYaw = FMath::RadiansToDegrees(FMath::Atan2(ScreenOffset.Y, ScreenOffset.X));
-	FRotator NewRotation = GetActorRotation();
-	NewRotation.Yaw = DesiredYaw;
-	SetActorRotation(NewRotation);
-
+	const FVector2D LookAxisVector = Value.Get<FVector2D>();
+	AddControllerPitchInput(LookAxisVector.Y);
+	AddControllerYawInput(LookAxisVector.X);
 }
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
