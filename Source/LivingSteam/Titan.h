@@ -3,20 +3,18 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SuperCharacterClass.h"
-#include "MeleeCharacter.generated.h"
+#include "GameFramework/Pawn.h"
+#include "Titan.generated.h"
 
-/**
- * 
- */
 UCLASS()
-class LIVINGSTEAM_API AMeleeCharacter : public ASuperCharacterClass
+class LIVINGSTEAM_API ATitan : public APawn
 {
 	GENERATED_BODY()
 
 public:
-	AMeleeCharacter();
-	
+	// Sets default values for this pawn's properties
+	ATitan();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -28,8 +26,4 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//Combat
-	virtual void Attack() override;
-	void ShieldBlock();
-	
 };
