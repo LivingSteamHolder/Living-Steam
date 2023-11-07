@@ -10,7 +10,6 @@
 #include "EnhancedInputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -22,14 +21,15 @@ ASuperCharacterClass::ASuperCharacterClass()
 	//SpringArm Component
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComp->SetupAttachment(RootComponent);
-	SpringArmComp->TargetArmLength = 700;
-	SpringArmComp->SocketOffset = FVector(0,0,600);
-	SpringArmComp->SetRelativeRotation(FRotator(0,45,0));
+	SpringArmComp->TargetArmLength = 500;
+	SpringArmComp->SocketOffset = FVector(0,0,250);
+	SpringArmComp->SetRelativeRotation(FRotator(0,0,0));
 
 	//Camera Component
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("PlayerCamera");
 	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);
-	CameraComp->SetRelativeRotation(FRotator(-30,0,0));
+	CameraComp->SetRelativeRotation(FRotator(-20,0,0));
+	CameraComp->SetProjectionMode(ECameraProjectionMode::Perspective);
 	//Mesh Component
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	MeshComp->SetupAttachment(RootComponent);
@@ -110,7 +110,7 @@ void ASuperCharacterClass::Move(const FInputActionValue& Value)
 	if(PC)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
-		const FRotator YawRotation(0,Rotation.Yaw + 45,0.f);
+		const FRotator YawRotation(0,Rotation.Yaw,0.f);
 
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(ForwardDirection,MovementVector.Y);
@@ -133,9 +133,9 @@ void ASuperCharacterClass::Run(const FInputActionValue& Value)
 	}
 	else
 	{
+		bRechargeStamina = true;
 		UE_LOG(LogTemp,Warning,TEXT("NOT RUNNING"));
 		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
-		bRechargeStamina = true;
 	}
 }
 

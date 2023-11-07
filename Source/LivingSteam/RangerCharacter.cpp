@@ -3,6 +3,7 @@
 
 #include "RangerCharacter.h"
 #include "EnhancedInputComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 ARangerCharacter::ARangerCharacter()
 {
@@ -37,14 +38,14 @@ void ARangerCharacter::Attack()
 
 void ARangerCharacter::Dash(const FInputActionValue& Value)
 {
-	FVector2D DashVector = Value.Get<FVector2D>();
+	bool bIsDashing = Value.Get<bool>();
 
-	if(PC)
+	if(bIsDashing)
 	{
-		const FRotator Rotation = PC->GetControlRotation();
-		
+		//GetCharacterMovement()->Velocity = FVector() * 200;
 	}
 	
 	UE_LOG(LogTemp,Warning,TEXT("DASHING"));
+	UE_LOG(LogTemp,Warning,TEXT("%f,%f"));
 }
 

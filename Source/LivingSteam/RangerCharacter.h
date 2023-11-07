@@ -32,6 +32,9 @@ private:
 	//Variables
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* DashAction;
+
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashDistance;
 	
 	//Movement
 	void Dash(const FInputActionValue& Value);
