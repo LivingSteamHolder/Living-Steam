@@ -31,6 +31,24 @@ private:
 	//Variables
 	bool bRechargeStamina = true;
 
+	bool bCanMove = true;
+	//Dash Variables
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashInterSpeed= 100;
+
+	bool bIsDashing;
+
+	FVector DashEndLocation;
+
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashDuration = 0.5;
+
+	float CurrentDashDuration;
+
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashDistance = 20;
+	
+	FVector2D DashDirection;
 	
 	UPROPERTY(EditAnywhere,Category="Input")
 	class UInputMappingContext* PlayerMapping;
@@ -44,6 +62,12 @@ private:
 
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* LookAction;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* DashAction;
 	
 	APlayerController* PC;
 	
@@ -81,7 +105,12 @@ private:
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
+	
 
+	//Dash Function
+	void Dash(const FInputActionValue& Value);
+	void DashInterpolation(float DeltaTime);
+	void EndDash();
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Attack();

@@ -8,15 +8,17 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
 ASuperCharacterClass::ASuperCharacterClass()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	//SpringArm Component
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
@@ -61,10 +63,13 @@ void ASuperCharacterClass::BeginPlay()
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (bRechargeStamina)
+	
+	if (bRechargeStamina && CurrentStamina < MaxStamina)
 	{
 		CurrentStamina+=DeltaTime*StaminaRegen;
 	}
+	
+	DashInterpolation(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -79,9 +84,9 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Run);
 		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Run);
 		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
+		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
+		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
 	}
-
-	PlayerInputComponent->BindAction("Attack",IE_Pressed,this,&ASuperCharacterClass::Attack);
 }
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
@@ -94,7 +99,8 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
-	if(PC)
+	DashDirection = Value.Get<FVector2D>();
+	if(PC && bCanMove)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
 		const FRotator YawRotation(0,Rotation.Yaw,0.f);
@@ -125,6 +131,42 @@ void ASuperCharacterClass::Run(const FInputActionValue& Value)
 		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
 	}
 }
+
+void ASuperCharacterClass::Dash(const FInputActionValue& Value)
+{
+	bIsDashing = Value.Get<bool>();
+
+	if(bIsDashing)
+	{
+		bCanMove = false;
+		DashEndLocation = GetActorForwardVector() * DashDistance;
+	}
+}
+
+void ASuperCharacterClass::DashInterpolation(float DeltaTime)
+{
+	if(bIsDashing)
+	{
+		bCanMove = false;
+		const float DashSpeed = (GetActorLocation() - DashEndLocation).Length()/DashDuration;
+		SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(),DashEndLocation + GetActorLocation(),GetWorld()->DeltaTimeSeconds,DashSpeed));
+		DashDuration -= DeltaTime;
+	}
+
+	if(CurrentDashDuration < 0)
+	{
+		bIsDashing = false;
+		bCanMove = true;
+		CurrentDashDuration = DashDuration;
+	}
+}
+
+
+void ASuperCharacterClass::EndDash()
+{
+}
+
+
 
 float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 
 {
