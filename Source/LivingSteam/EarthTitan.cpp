@@ -4,11 +4,23 @@
 #include "EarthTitan.h"
 
 #include "ThrowableShard.h"
+#include "Kismet/GameplayStatics.h"
+
+
+void AEarthTitan::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	SetActorRotation()
+}
 
 void AEarthTitan::ThrowRock()
 {
-	//UWorld::SpawnActor<AThrowableShard>(SpawnOffset * GetActorForwardVector() + GetActorLocation(), GetActorRotation());
+	const auto NewShard = GetWorld()->SpawnActor<AThrowableShard>(BPThrowableShard, SpawnOffset * GetActorForwardVector() + GetActorLocation(), GetActorRotation());
 
+	if (NewShard)
+	{
+		NewShard->SetOwner(this);
+	}
 }
 
 void AEarthTitan::SpawnBoulder()

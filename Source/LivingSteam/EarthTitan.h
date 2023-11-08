@@ -16,12 +16,17 @@ class LIVINGSTEAM_API AEarthTitan : public ATitan
 	GENERATED_BODY()
 
 public:
+	virtual void Tick(float DeltaTime) override;
+
 	void ThrowRock();
 	void SpawnBoulder();
 private:
-	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta =(AllowPrivateAccess = "true"))
-	ALevelBounds* Shard;
+
 	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (AllowPrivateAccess= "true"))
-	float SpawnOffset;
-	
+	float SpawnOffset = 100.f;
+
+	class ACharacter;
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Shard", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AThrowableShard> BPThrowableShard;
 };

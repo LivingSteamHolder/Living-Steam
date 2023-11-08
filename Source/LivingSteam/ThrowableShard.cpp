@@ -15,6 +15,7 @@ AThrowableShard::AThrowableShard()
 void AThrowableShard::BeginPlay()
 {
 	Super::BeginPlay();
+	GetRootComponent()->ComponentVelocity=(Velocity* GetActorForwardVector());
 	
 }
 
