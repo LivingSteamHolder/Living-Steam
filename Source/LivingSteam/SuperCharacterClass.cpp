@@ -68,8 +68,11 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	{
 		CurrentStamina+=DeltaTime*StaminaRegen;
 	}
-	
-	DashInterpolation(DeltaTime);
+
+	if(bIsDashing)
+		DashInterpolation(DeltaTime);
+
+	UE_LOG(LogTemp,Warning,TEXT("%f"),(GetActorLocation() - DashEndLocation).Length()/DashDuration)
 }
 
 // Called to bind functionality to input
@@ -134,12 +137,10 @@ void ASuperCharacterClass::Run(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 {
-	bIsDashing = Value.Get<bool>();
-
-	if(bIsDashing)
+	if(Value.Get<bool>() && !bIsDashing)
 	{
-		bCanMove = false;
-		DashEndLocation = GetActorForwardVector() * DashDistance;
+		bIsDashing = true;
+		DashStartTime = GetWorld()->GetTimeSeconds();
 	}
 }
 
@@ -147,17 +148,14 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 {
 	if(bIsDashing)
 	{
-		bCanMove = false;
-		const float DashSpeed = (GetActorLocation() - DashEndLocation).Length()/DashDuration;
-		SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(),DashEndLocation + GetActorLocation(),GetWorld()->DeltaTimeSeconds,DashSpeed));
-		DashDuration -= DeltaTime;
-	}
+		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
+		float Alpha = FMath::Clamp(ElapsedTime/DashDuration,0.f,1.f);
+		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha));
 
-	if(CurrentDashDuration < 0)
-	{
-		bIsDashing = false;
-		bCanMove = true;
-		CurrentDashDuration = DashDuration;
+		if(Alpha >= 1.0f)
+		{
+			bIsDashing = false;
+		}
 	}
 }
 

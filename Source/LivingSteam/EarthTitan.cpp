@@ -10,7 +10,7 @@
 void AEarthTitan::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorRotation()
+	//SetActorRotation()
 }
 
 void AEarthTitan::ThrowRock()

@@ -34,11 +34,12 @@ private:
 	bool bCanMove = true;
 	//Dash Variables
 	UPROPERTY(EditAnywhere,Category="Dash")
-	float DashInterSpeed= 100;
+	float DashStartTime;
 
 	bool bIsDashing;
 
 	FVector DashEndLocation;
+	FVector DashStartLocation;
 
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashDuration = 0.5;
