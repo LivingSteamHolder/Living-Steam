@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "ShotActionInterface.h"
 #include "Components/TimelineComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -73,7 +74,9 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	if(bIsDashing)
 		DashInterpolation(DeltaTime);
 
+
 	UE_LOG(LogTemp,Warning,TEXT("%f"),(GetActorLocation() - DashEndLocation).Length()/DashDuration)
+
 
 }
 
@@ -91,6 +94,7 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
 	}
 }
 
@@ -142,6 +146,32 @@ void ASuperCharacterClass::Run(const FInputActionValue& Value)
 	}
 }
 
+void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
+{
+	const FVector StartPosition = GetActorLocation();
+	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
+	FCollisionQueryParams QueryParam;
+	QueryParam.AddIgnoredActor(this);
+	
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget,StartPosition,EndPosition,ECC_WorldDynamic,QueryParam,FCollisionResponseParams());
+
+	if(bHit)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
+		if(Interface)
+		{
+			Interface->SpawnShotEffect(20);
+		}
+		else
+		{
+			//Spawn default debrie effect
+		}
+	}
+
+	DrawDebugLine(GetWorld(),StartPosition,EndPosition,FColor::Red,false,5,0,5);
+}
+
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 {
 	if(Value.Get<bool>() && !bIsDashing)
@@ -158,7 +188,7 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
 		float Alpha = FMath::Clamp(ElapsedTime/DashDuration,0.f,1.f);
 		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha));
-
+		
 		if(Alpha >= 1.0f)
 		{
 			bIsDashing = false;
@@ -178,7 +208,6 @@ float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& D
 	CurrentHealth-=DamageAmount;
 	if(CurrentHealth<=0)
 	{
-	
 		UGameplayStatics::GetGameMode(GetWorld());
 	}
 

@@ -15,7 +15,11 @@ ATitan::ATitan()
 void ATitan::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	for(ATitanHead* TitanHead : HeadsArray)
+	{
+		MaxHealth += TitanHead->GetHealth();
+	}
 }
 
 // Called every frame
@@ -23,6 +27,7 @@ void ATitan::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 }
 
 // Called to bind functionality to input
