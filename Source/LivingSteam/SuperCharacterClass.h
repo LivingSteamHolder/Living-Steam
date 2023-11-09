@@ -27,19 +27,23 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void Respawn();
 private:
 	//Variables
 	bool bRechargeStamina = true;
 
 	bool bCanMove = true;
+
+	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess ="true"))
+	FVector SpawnPoint;
+	
 	//Dash Variables
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashStartTime;
 
 	bool bIsDashing;
-
-	FVector DashEndLocation;
-	FVector DashStartLocation;
+	
 
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashDuration = 0.5;
@@ -69,8 +73,15 @@ private:
 
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* DashAction;
-	
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* ShootAction;
+
+	//Player Controller
 	APlayerController* PC;
+
+	//Shoot Variables
+	FHitResult HitTarget;
 	
 	//Character Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
@@ -106,6 +117,9 @@ private:
 	void Look(const FInputActionValue& Value);
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
+
+	//Shoot
+	void Shoot(const FInputActionValue& Value);
 	
 
 	//Dash Function

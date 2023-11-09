@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "TitanHead.h"
 #include "GameFramework/Pawn.h"
 #include "Titan.generated.h"
 
@@ -26,4 +27,15 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+protected:
+
+	UPROPERTY(EditAnywhere)
+	TArray<ATitanHead*> HeadsArray;
+	
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* HeadBody;
+	
+	float MaxHealth;
+
+	float CurrentHealth;
 };
