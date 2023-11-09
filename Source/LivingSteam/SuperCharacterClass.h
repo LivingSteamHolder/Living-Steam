@@ -27,11 +27,17 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void Respawn();
 private:
 	//Variables
 	bool bRechargeStamina = true;
 
 	bool bCanMove = true;
+
+	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess ="true"))
+	FVector SpawnPoint;
+	
 	//Dash Variables
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashStartTime;
