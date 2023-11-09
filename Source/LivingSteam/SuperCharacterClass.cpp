@@ -8,15 +8,18 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "ShotActionInterface.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
 ASuperCharacterClass::ASuperCharacterClass()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	//SpringArm Component
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
@@ -55,16 +58,26 @@ void ASuperCharacterClass::BeginPlay()
 		}
 		PC->SetControlRotation(GetActorRotation());
 	}
+	SpawnPoint = GetActorLocation();
 }
 
 // Called every frame
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (bRechargeStamina)
+	
+	if (bRechargeStamina && CurrentStamina < MaxStamina)
 	{
 		CurrentStamina+=DeltaTime*StaminaRegen;
 	}
+
+	if(bIsDashing)
+		DashInterpolation(DeltaTime);
+
+
+	UE_LOG(LogTemp,Warning,TEXT("%f"),(GetActorLocation() - DashEndLocation).Length()/DashDuration)
+
+
 }
 
 // Called to bind functionality to input
@@ -79,9 +92,15 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Run);
 		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Run);
 		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
+		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
+		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
 	}
+}
 
-	PlayerInputComponent->BindAction("Attack",IE_Pressed,this,&ASuperCharacterClass::Attack);
+void ASuperCharacterClass::Respawn()
+{
+	SetActorLocation(SpawnPoint);
 }
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
@@ -94,7 +113,8 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
-	if(PC)
+	DashDirection = Value.Get<FVector2D>();
+	if(PC && bCanMove)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
 		const FRotator YawRotation(0,Rotation.Yaw,0.f);
@@ -126,12 +146,68 @@ void ASuperCharacterClass::Run(const FInputActionValue& Value)
 	}
 }
 
+void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
+{
+	const FVector StartPosition = GetActorLocation();
+	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
+	FCollisionQueryParams QueryParam;
+	QueryParam.AddIgnoredActor(this);
+	
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget,StartPosition,EndPosition,ECC_WorldDynamic,QueryParam,FCollisionResponseParams());
+
+	if(bHit)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
+		if(Interface)
+		{
+			Interface->SpawnShotEffect(20);
+		}
+		else
+		{
+			//Spawn default debrie effect
+		}
+	}
+
+	DrawDebugLine(GetWorld(),StartPosition,EndPosition,FColor::Red,false,5,0,5);
+}
+
+void ASuperCharacterClass::Dash(const FInputActionValue& Value)
+{
+	if(Value.Get<bool>() && !bIsDashing)
+	{
+		bIsDashing = true;
+		DashStartTime = GetWorld()->GetTimeSeconds();
+	}
+}
+
+void ASuperCharacterClass::DashInterpolation(float DeltaTime)
+{
+	if(bIsDashing)
+	{
+		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
+		float Alpha = FMath::Clamp(ElapsedTime/DashDuration,0.f,1.f);
+		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha));
+		
+		if(Alpha >= 1.0f)
+		{
+			bIsDashing = false;
+		}
+	}
+}
+
+
+void ASuperCharacterClass::EndDash()
+{
+}
+
+
+
 float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 
 {
 	CurrentHealth-=DamageAmount;
 	if(CurrentHealth<=0)
 	{
-	
 		UGameplayStatics::GetGameMode(GetWorld());
 	}
 

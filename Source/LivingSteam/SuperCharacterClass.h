@@ -27,10 +27,33 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void Respawn();
 private:
 	//Variables
 	bool bRechargeStamina = true;
 
+	bool bCanMove = true;
+
+	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess ="true"))
+	FVector SpawnPoint;
+	
+	//Dash Variables
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashStartTime;
+
+	bool bIsDashing;
+	
+
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashDuration = 0.5;
+
+	float CurrentDashDuration;
+
+	UPROPERTY(EditAnywhere,Category="Dash")
+	float DashDistance = 20;
+	
+	FVector2D DashDirection;
 	
 	UPROPERTY(EditAnywhere,Category="Input")
 	class UInputMappingContext* PlayerMapping;
@@ -44,8 +67,21 @@ private:
 
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* LookAction;
-	
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* DashAction;
+
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* ShootAction;
+
+	//Player Controller
 	APlayerController* PC;
+
+	//Shoot Variables
+	FHitResult HitTarget;
 	
 	//Character Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
@@ -82,6 +118,14 @@ private:
 	void Move(const FInputActionValue& Value);
 	void Run(const FInputActionValue& Value);
 
+	//Shoot
+	void Shoot(const FInputActionValue& Value);
+	
+
+	//Dash Function
+	void Dash(const FInputActionValue& Value);
+	void DashInterpolation(float DeltaTime);
+	void EndDash();
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Attack();
