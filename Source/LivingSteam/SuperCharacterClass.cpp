@@ -75,7 +75,7 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 		DashInterpolation(DeltaTime);
 
 
-	UE_LOG(LogTemp,Warning,TEXT("%f"),(GetActorLocation() - DashEndLocation).Length()/DashDuration)
+
 
 
 }

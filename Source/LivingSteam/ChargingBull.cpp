@@ -34,7 +34,7 @@ void AChargingBull::BeginPlay()
 void AChargingBull::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	RotateBull();
+	//RotateBull();
 
 }
 
@@ -71,8 +71,8 @@ void AChargingBull::JumpAttack()
 
 void AChargingBull::RotateBull()
 {
-	FRotator rot = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
-	rot.Pitch = 0;
-	SetActorRotation(rot);
+	//FRotator rot = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
+	//rot.Pitch = 0;
+	//SetActorRotation(rot);
 }
 
