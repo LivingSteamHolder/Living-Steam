@@ -5,8 +5,11 @@
 
 #include "GameFramework/Character.h"
 #include "DrawDebugHelpers.h"
+#include "SuperCharacterClass.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/Pawn.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Physics/ImmediatePhysics/ImmediatePhysicsShared/ImmediatePhysicsCore.h"
 
 
 // Sets default values
@@ -44,21 +47,32 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AChargingBull::ChargeAttack()
 {
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(100, 100, 100));
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	FCollisionShape Box = FCollisionShape::MakeBox(FVector(50, 50, 50));
 
 
-	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation(), GetActorForwardVector() * 1000,
+	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+FVector(0,0,80), GetActorLocation()+ GetActorForwardVector() * 10000,
 											FQuat::Identity, ECC_Visibility,
-											Box);
+											Box, params);
 
-	if(BHit)
+	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
-		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat(), FColor::Purple, true);
+		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat::Identity, FColor::Purple, true);
+		Target = ChargeTraceResult.GetActor()->GetActorLocation();
 	}
+
+}
+
+void AChargingBull::JumpAttack()
+{
+	
 }
 
 void AChargingBull::RotateBull()
 {
-	SetActorRotation((PlayerRef->GetActorLocation()-GetActorLocation()).Rotation());
+	FRotator rot = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
+	rot.Pitch = 0;
+	SetActorRotation(rot);
 }
 

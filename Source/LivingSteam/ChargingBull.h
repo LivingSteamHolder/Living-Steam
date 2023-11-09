@@ -26,17 +26,24 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UFUNCTION(Blueprintable, Category="Combat")
+	UFUNCTION(BlueprintCallable)
 	void ChargeAttack();
+
+	void JumpAttack();
 
 	void RotateBull();
 
 private:
 	class ACharacter* PlayerRef;
 
+	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess="true"))
+	FVector Target;
+
 	UPROPERTY(BlueprintReadWrite,  meta=(AllowPrivateAccess="true"))
 	float hp= 100;
 	
 	FHitResult ChargeTraceResult;
 	UWorld* World;
+
+	bool bIsAttacking = false;
 };
