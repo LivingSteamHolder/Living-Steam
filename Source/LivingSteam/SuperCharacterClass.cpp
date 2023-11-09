@@ -58,6 +58,7 @@ void ASuperCharacterClass::BeginPlay()
 		}
 		PC->SetControlRotation(GetActorRotation());
 	}
+	SpawnPoint = GetActorLocation();
 }
 
 // Called every frame
@@ -72,6 +73,11 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 
 	if(bIsDashing)
 		DashInterpolation(DeltaTime);
+
+
+	UE_LOG(LogTemp,Warning,TEXT("%f"),(GetActorLocation() - DashEndLocation).Length()/DashDuration)
+
+
 }
 
 // Called to bind functionality to input
@@ -90,6 +96,11 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
 		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
 	}
+}
+
+void ASuperCharacterClass::Respawn()
+{
+	SetActorLocation(SpawnPoint);
 }
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
