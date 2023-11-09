@@ -46,7 +46,7 @@ private:
 	float MaxHeadHealth = 100;
 
 	UPROPERTY(EditAnywhere)
-	ATitan* Titan;
+	class ATitan* Titan;
 
 	//Components
 	UPROPERTY(EditAnywhere)
