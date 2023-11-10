@@ -45,5 +45,6 @@ private:
 	FHitResult ChargeTraceResult;
 	UWorld* World;
 
-	bool bIsAttacking = false;
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	bool bIsCharging = false;
 };

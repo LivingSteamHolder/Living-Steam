@@ -34,7 +34,15 @@ void AChargingBull::BeginPlay()
 void AChargingBull::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//RotateBull();
+	if(bIsCharging)
+	{
+
+		UE_LOG(LogTemp, Warning, TEXT("charging"));
+
+	}
+	RotateBull();
+
+
 
 }
 
@@ -47,19 +55,23 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AChargingBull::ChargeAttack()
 {
+	bIsCharging = true;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	FCollisionShape Box = FCollisionShape::MakeBox(FVector(50, 50, 50));
 
 
 	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+FVector(0,0,80), GetActorLocation()+ GetActorForwardVector() * 10000,
-											FQuat::Identity, ECC_Visibility,
+											FQuat::Identity, ECC_GameTraceChannel2,
 											Box, params);
+
+
 
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
 		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat::Identity, FColor::Purple, true);
-		Target = ChargeTraceResult.GetActor()->GetActorLocation();
+		Target = ChargeTraceResult.GetActor()->GetActorLocation() + ((ChargeTraceResult.GetActor()->GetActorLocation() - GetActorLocation()).GetSafeNormal()* 500);
+
 	}
 
 }
@@ -71,8 +83,12 @@ void AChargingBull::JumpAttack()
 
 void AChargingBull::RotateBull()
 {
-	//FRotator rot = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
-	//rot.Pitch = 0;
-	//SetActorRotation(rot);
+	if(PlayerRef)
+	{
+	FRotator rot = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
+	rot.Pitch = 0;
+	SetActorRotation(rot);
+		
+	}
 }
 
