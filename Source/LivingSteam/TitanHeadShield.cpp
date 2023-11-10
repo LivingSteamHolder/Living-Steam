@@ -33,7 +33,12 @@ void ATitanHeadShield::Tick(float DeltaTime)
 
 void ATitanHeadShield::SpawnShotEffect(float DamageAmount)
 {
-	UE_LOG(LogTemp,Warning,TEXT("SHIELD HIT"));
+	if(TitanHead)
+	{
+		TitanHead->TakeDamage(DamageAmount * 0.05);
+		UE_LOG(LogTemp,Warning,TEXT("SHIELD HIT"));
+	}
+	
 	//Spawn Particle
 }
 

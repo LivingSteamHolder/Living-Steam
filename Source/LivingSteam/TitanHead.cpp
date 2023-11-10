@@ -41,6 +41,10 @@ void ATitanHead::TakeDamage(float DamageAmount)
 	CurrentHealth -= DamageAmount;
 	if(CurrentHealth <= 0 )
 	{
+		for(ATitanHeadShield* TitanShield : TitanShieldArray)
+		{
+			TitanShield->Destroy();
+		}
 		Destroy();
 	}
 }

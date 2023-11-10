@@ -42,7 +42,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* ShieldMesh;
 	
-	
+	UPROPERTY(EditAnywhere)
+	class ATitanHead* TitanHead;
 	
 	FVector InitialLocation;
 
