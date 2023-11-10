@@ -27,24 +27,28 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	void ChargeAttack();
+	bool ChargeAttack();
 
 	void JumpAttack();
 
 	void RotateBull();
+
+	void CirclePlayer();
+
 
 private:
 	class ACharacter* PlayerRef;
 
 	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess="true"))
 	FVector Target;
-
-	UPROPERTY(BlueprintReadWrite,  meta=(AllowPrivateAccess="true"))
-	float hp= 100;
 	
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FHitResult ChargeTraceResult;
 	UWorld* World;
 
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	bool bIsCharging = false;
+
+	bool bFoundPlayer = false;
+
 };
