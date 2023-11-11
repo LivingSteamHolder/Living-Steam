@@ -62,11 +62,13 @@ bool AChargingBull::ChargeAttack()
 											Box, params);
 
 
-
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
 		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat::Identity, FColor::Purple, false);
-		Target = ChargeTraceResult.GetActor()->GetActorLocation() + ((ChargeTraceResult.GetActor()->GetActorLocation() - GetActorLocation()).GetSafeNormal()* 500);
+		FVector DistanceVector = ChargeTraceResult.GetActor()->GetActorLocation() - GetActorLocation();
+		DistanceVector.Z = 0;
+		Target = ChargeTraceResult.GetActor()->GetActorLocation() + DistanceVector.GetSafeNormal() * 500;
+		UE_LOG(LogTemp,Warning,TEXT("%f,%f,%f"),Target.X,Target.Y,Target.Z);
 	}
 	return BHit;
 }

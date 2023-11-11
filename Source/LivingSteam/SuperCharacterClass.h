@@ -29,6 +29,12 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Respawn();
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	float DashCurrentCooldown;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	float DashMaxCooldown = 0.5;
 private:
 	//Variables
 	bool bRechargeStamina = true;
@@ -42,7 +48,13 @@ private:
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashStartTime;
 
+
+	
 	bool bIsDashing;
+
+	bool bDashIsOnCooldown;
+	
+	
 	
 
 	UPROPERTY(EditAnywhere,Category="Dash")
