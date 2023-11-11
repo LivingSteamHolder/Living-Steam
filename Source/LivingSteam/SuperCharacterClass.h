@@ -42,7 +42,14 @@ private:
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashStartTime;
 
+	UPROPERTY(EditAnywhere)
+	float DashMaxCooldown = 0.5;
+	
 	bool bIsDashing;
+
+	bool bDashIsOnCooldown;
+	
+	float DashCurrentCooldown;
 	
 
 	UPROPERTY(EditAnywhere,Category="Dash")

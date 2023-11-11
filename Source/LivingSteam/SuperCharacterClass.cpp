@@ -71,12 +71,21 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 		CurrentStamina+=DeltaTime*StaminaRegen;
 	}
 
+	if(bDashIsOnCooldown)
+	{
+		DashCurrentCooldown-= DeltaTime;
+	}
+
+	if(DashCurrentCooldown < 0.0f)
+	{
+		bDashIsOnCooldown = false;
+		DashCurrentCooldown = DashMaxCooldown;
+	}
+	
 	if(bIsDashing)
 		DashInterpolation(DeltaTime);
 
-
-
-
+	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorForwardVector().X,GetActorForwardVector().Y);
 
 }
 
@@ -174,7 +183,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 {
-	if(Value.Get<bool>() && !bIsDashing)
+	if(Value.Get<bool>() && !bIsDashing && !bDashIsOnCooldown)
 	{
 		bIsDashing = true;
 		DashStartTime = GetWorld()->GetTimeSeconds();
@@ -191,6 +200,7 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 		
 		if(Alpha >= 1.0f)
 		{
+			bDashIsOnCooldown = true;
 			bIsDashing = false;
 		}
 	}
