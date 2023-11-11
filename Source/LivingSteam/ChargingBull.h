@@ -35,6 +35,9 @@ public:
 
 	void CirclePlayer();
 
+	UFUNCTION(BlueprintCallable)
+	FVector ExtraCharge();
+
 
 private:
 	class ACharacter* PlayerRef;
@@ -44,11 +47,14 @@ private:
 	
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FHitResult ChargeTraceResult;
+	
 	UWorld* World;
 
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	bool bIsCharging = false;
 
 	bool bFoundPlayer = false;
+
+	float CircleDirection = 1;
 
 };
