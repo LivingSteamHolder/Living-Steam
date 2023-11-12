@@ -37,6 +37,9 @@ ASuperCharacterClass::ASuperCharacterClass()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	MeshComp->SetupAttachment(RootComponent);
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	EffectLocation = CreateDefaultSubobject<USceneComponent>("ShotChargeEffect");
+	EffectLocation->SetupAttachment(RootComponent);
 	
 }
 
@@ -84,8 +87,8 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	
 	if(bIsDashing)
 		DashInterpolation(DeltaTime);
-
-	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorForwardVector().X,GetActorForwardVector().Y);
+	
+	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorRotation().Pitch,GetActorRotation().Yaw);
 
 }
 
@@ -103,7 +106,11 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
-		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
+		
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Shoot);
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Started,this,&ASuperCharacterClass::StartShootChargeEffect);
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Canceled,this,&ASuperCharacterClass::EndShootChargeEffect);
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::EndShootChargeEffect);
 	}
 }
 
@@ -114,12 +121,16 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
+
+	if (NiagaraComp)
+	{
+		EffectLocation->SetRelativeRotation(CameraComp->GetForwardVector().Rotation());
+	}
 }
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
-	DashDirection = Value.Get<FVector2D>();
 	if(PC && bCanMove)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
@@ -158,7 +169,6 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
 	FCollisionQueryParams QueryParam;
 	QueryParam.AddIgnoredActor(this);
-	
 	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget,StartPosition,EndPosition,ECC_WorldDynamic,QueryParam,FCollisionResponseParams());
 
 	if(bHit)
@@ -176,6 +186,20 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 	}
 
 	DrawDebugLine(GetWorld(),StartPosition,EndPosition,FColor::Red,false,5,0,5);
+}
+
+void ASuperCharacterClass::StartShootChargeEffect()
+{
+	UE_LOG(LogTemp,Warning,TEXT("CHARGING"));
+
+		NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(ShootChargeEffect,CameraComp,NAME_None,FVector(GetActorForwardVector().X + 100,50,0), CameraComp->GetForwardVector().Rotation(),EAttachLocation::Type::KeepRelativeOffset,true);
+}
+
+void ASuperCharacterClass::EndShootChargeEffect()
+{
+	UE_LOG(LogTemp,Warning,TEXT("NOT CHARGING"));
+	if(NiagaraComp)
+		NiagaraComp->Deactivate();
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
@@ -202,12 +226,6 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 		}
 	}
 }
-
-
-void ASuperCharacterClass::EndDash()
-{
-}
-
 
 
 float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 
