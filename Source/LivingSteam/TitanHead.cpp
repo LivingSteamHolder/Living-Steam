@@ -45,8 +45,16 @@ void ATitanHead::TakeDamage(float DamageAmount)
 		{
 			TitanShield->Destroy();
 		}
-		Destroy();
+		RootComponent->SetVisibility(false);
+		//Destroy();
 	}
+}
+
+void ATitanHead::LowerShield()
+{
+
+	TitanShieldArray[ShieldCounter]->Destroy();
+	ShieldCounter++;
 }
 
 float ATitanHead::GetHealth()
@@ -67,6 +75,7 @@ void ATitanHead::RotateShields()
 	{
 		FVector RotateVector = UKismetMathLibrary::RotateAngleAxis(FVector(TitanShield->Radius,0,0),(TitanShield->CurrentRotation + TitanShield->StartingAngle),FVector(0,0,1));
 		TitanShield->SetActorLocation(GetActorLocation() + RotateVector);
+
 	}
 }
 

@@ -28,7 +28,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
 	void TakeDamage(float AmountDamage);
+	
+	UFUNCTION(BlueprintCallable)
+	void LowerShield();
 
 	float GetHealth();
 
@@ -38,6 +42,7 @@ public:
 
 private:
 	//Variables
+	int ShieldCounter = 0;
 
 	UPROPERTY(EditAnywhere,Category="Shields")
 	TArray<ATitanHeadShield*> TitanShieldArray;
