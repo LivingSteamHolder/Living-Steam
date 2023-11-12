@@ -37,9 +37,10 @@ void AChargingBull::Tick(float DeltaTime)
 	ChargeAttack();
 
 	if(!bIsCharging)
+	{
 		RotateBull();
-	
-	CirclePlayer();
+		CirclePlayer();
+	}
 
 }
 
@@ -50,15 +51,15 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 }
 
-bool AChargingBull::ChargeAttack()
+bool AChargingBull::ChargeAttack(float BoxSize)
 {
 
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(80, 80, 50));
+	FCollisionShape Box = FCollisionShape::MakeBox(FVector(BoxSize, BoxSize, 250));
 
 
-	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+FVector(0,0,80), GetActorLocation()+ GetActorForwardVector() * 100000,
+	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+GetActorForwardVector()*280, GetActorLocation()+GetActorForwardVector() * 100000,
 											FQuat::Identity, ECC_GameTraceChannel2,
 											Box, params);
 	UE_LOG(LogTemp, Warning, TEXT("Target: %f, %f"), Target.X, Target.Y);
@@ -66,9 +67,8 @@ bool AChargingBull::ChargeAttack()
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
 		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat::Identity, FColor::Purple, false);
-		FVector DistanceVector = ChargeTraceResult.GetActor()->GetActorLocation() - GetActorLocation();
-		DistanceVector.Z = 0;
-		Target = ChargeTraceResult.GetActor()->GetActorLocation() + DistanceVector.GetSafeNormal() * 500;
+
+		Target = ChargeTraceResult.GetActor()->GetActorLocation();
 
 	}
 	return BHit;
@@ -95,10 +95,10 @@ void AChargingBull::CirclePlayer()
 
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(50, 50, 50));
+	FCollisionShape Box = FCollisionShape::MakeBox(FVector(250, 250, 250));
 	FHitResult FHit;
 
-	bool BHit = World->SweepSingleByChannel(FHit, GetActorLocation()+FVector(0,0,80), GetActorLocation()+FVector(0,0,80)+ GetActorRightVector() * 300* CircleDirection,
+	bool BHit = World->SweepSingleByChannel(FHit, GetActorLocation()+FVector(0,0,80), GetActorLocation()+FVector(0,0,80)+ GetActorRightVector() * 400* CircleDirection,
 											FQuat::Identity, ECC_GameTraceChannel2,
 											Box, params);
 
@@ -112,23 +112,27 @@ void AChargingBull::CirclePlayer()
 	
 
 	bFoundPlayer = (ChargeTraceResult.GetActor()!=PlayerRef);
+
 	if(bFoundPlayer)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("%s"),ChargeTraceResult.GetActor()!=PlayerRef ? TEXT("TRUE"):TEXT("FALSE"));
 	FVector TangentVec = (FVector::CrossProduct(FVector(0,0,1), PlayerRef->GetActorLocation()-GetActorLocation())).GetSafeNormal();
-	SetActorLocation(GetActorLocation()+TangentVec*CircleDirection*4);
+	SetActorLocation(GetActorLocation()+TangentVec*CircleDirection*20);
 	}
-	
+	ChargeAttack(50.f);
+	if((ChargeTraceResult.ImpactPoint-GetActorLocation()).Length()< 100)
+		SetActorLocation(GetActorLocation()+GetActorForwardVector()*10);
+
 }
 
 FVector AChargingBull::ExtraCharge()
 {
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(50, 50, 50));
+	FCollisionShape Box = FCollisionShape::MakeBox(FVector(150, 150, 50));
 	FHitResult FHit;
 
-	bool BHit = World->SweepSingleByChannel(FHit, GetActorLocation()+FVector(0,0,80), GetActorLocation()+FVector(0,0,80)+ GetActorRightVector() * -500,
+	bool BHit = World->SweepSingleByChannel(FHit, GetActorLocation()+FVector(0,0,80), GetActorLocation()+FVector(0,0,80)+ GetActorForwardVector() * 500,
 											FQuat::Identity, ECC_GameTraceChannel3,
 											Box, params);
 
@@ -136,7 +140,7 @@ FVector AChargingBull::ExtraCharge()
 		return FHit.ImpactPoint;
 	else
 	{
-		return GetActorLocation() + GetActorRightVector()*-500;
+		return GetActorLocation() + GetActorForwardVector()*800;
 	}
 
 	

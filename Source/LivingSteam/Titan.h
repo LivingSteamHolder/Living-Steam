@@ -34,8 +34,12 @@ protected:
 	
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* HeadBody;
-	
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float MaxHealth;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(AllowPrivateAccess = "true"))
 	float CurrentHealth;
+
+
 };

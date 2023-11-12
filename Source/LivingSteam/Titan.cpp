@@ -16,16 +16,25 @@ void ATitan::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	float HealthCounter = 0;
 	for(ATitanHead* TitanHead : HeadsArray)
 	{
-		MaxHealth += TitanHead->GetHealth();
+		HealthCounter += TitanHead->GetHealth();
 	}
+	MaxHealth = HealthCounter;
 }
 
 // Called every frame
 void ATitan::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	float Health = 0;
+		for(ATitanHead* TitanHead : HeadsArray)
+    	{
+			Health += TitanHead->GetHealth();
+    	}
+	CurrentHealth = Health;
 }
 
 // Called to bind functionality to input

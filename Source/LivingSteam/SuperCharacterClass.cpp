@@ -107,10 +107,7 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	}
 }
 
-void ASuperCharacterClass::Respawn()
-{
-	SetActorLocation(SpawnPoint);
-}
+
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
 {

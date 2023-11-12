@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "ChargingBull.generated.h"
 
+
 UCLASS()
 class LIVINGSTEAM_API AChargingBull : public APawn
 {
@@ -27,7 +28,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION(BlueprintCallable)
-	bool ChargeAttack();
+	
+	bool ChargeAttack(float BoxSize = 250.f);
 
 	void JumpAttack();
 
@@ -56,5 +58,6 @@ private:
 	bool bFoundPlayer = false;
 
 	float CircleDirection = 1;
+
 
 };

@@ -28,8 +28,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void Respawn();
-	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	float DashCurrentCooldown;
 
@@ -44,6 +42,9 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess ="true"))
 	FVector SpawnPoint;
 	
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Dash", meta=(AllowPrivateAccess="true"))
+	class ATitan* CurrentTitan;
+	
 	//Dash Variables
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashStartTime;
@@ -53,9 +54,7 @@ private:
 	bool bIsDashing;
 
 	bool bDashIsOnCooldown;
-	
-	
-	
+
 
 	UPROPERTY(EditAnywhere,Category="Dash")
 	float DashDuration = 0.5;
