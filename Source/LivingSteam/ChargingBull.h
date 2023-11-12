@@ -59,5 +59,8 @@ private:
 
 	float CircleDirection = 1;
 
+	UPROPERTY(EditAnywhere)
+	AActor* OuterWall;
+
 
 };

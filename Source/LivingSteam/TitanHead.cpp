@@ -50,10 +50,10 @@ void ATitanHead::TakeDamage(float DamageAmount)
 	}
 }
 
-void ATitanHead::LowerShield()
+void ATitanHead::LowerShield(int x)
 {
 
-	TitanShieldArray[ShieldCounter]->Destroy();
+	TitanShieldArray[x]->Destroy();
 	ShieldCounter++;
 }
 

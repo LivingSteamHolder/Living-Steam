@@ -32,7 +32,7 @@ public:
 	void TakeDamage(float AmountDamage);
 	
 	UFUNCTION(BlueprintCallable)
-	void LowerShield();
+	void LowerShield(int x);
 
 	float GetHealth();
 
