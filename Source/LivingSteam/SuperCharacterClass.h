@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "SuperCharacterClass.generated.h"
 
 class UInputAction;
@@ -131,12 +133,22 @@ private:
 
 	//Shoot
 	void Shoot(const FInputActionValue& Value);
-	
+
+	//Niagara
+	UPROPERTY(EditAnywhere,Category="Effects")
+	UNiagaraSystem* ShootChargeEffect;
+
+	UNiagaraComponent* NiagaraComp;
+
+	UPROPERTY(EditAnywhere)
+	USceneComponent* EffectLocation;
+
+	void StartShootChargeEffect();
+	void EndShootChargeEffect();
 
 	//Dash Function
 	void Dash(const FInputActionValue& Value);
 	void DashInterpolation(float DeltaTime);
-	void EndDash();
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	virtual void Attack();
