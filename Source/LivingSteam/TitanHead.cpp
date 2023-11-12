@@ -73,9 +73,11 @@ void ATitanHead::RotateShields()
 {
 	for(ATitanHeadShield* TitanShield : TitanShieldArray)
 	{
-		FVector RotateVector = UKismetMathLibrary::RotateAngleAxis(FVector(TitanShield->Radius,0,0),(TitanShield->CurrentRotation + TitanShield->StartingAngle),FVector(0,0,1));
-		TitanShield->SetActorLocation(GetActorLocation() + RotateVector);
-
+		if(TitanShield)
+		{
+			FVector RotateVector = UKismetMathLibrary::RotateAngleAxis(FVector(TitanShield->Radius,0,0),(TitanShield->CurrentRotation + TitanShield->StartingAngle),FVector(0,0,1));
+			TitanShield->SetActorLocation(GetActorLocation() + RotateVector);
+		}
 	}
 }
 
