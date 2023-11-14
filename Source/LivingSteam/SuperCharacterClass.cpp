@@ -107,10 +107,12 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
 		
-		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Shoot);
-		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Started,this,&ASuperCharacterClass::StartShootChargeEffect);
-		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Canceled,this,&ASuperCharacterClass::EndShootChargeEffect);
-		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::EndShootChargeEffect);
+		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::ChargedShoot);
+		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Started,this,&ASuperCharacterClass::StartShootChargeEffect);
+		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Canceled,this,&ASuperCharacterClass::EndShootChargeEffect);
+		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::EndShootChargeEffect);
+
+		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
 	}
 }
 
@@ -163,6 +165,29 @@ void ASuperCharacterClass::Run(const FInputActionValue& Value)
 	}
 }
 
+void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
+{
+	const FVector StartPosition = GetActorLocation();
+	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
+	FCollisionQueryParams QueryParam;
+	QueryParam.AddIgnoredActor(this);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget,StartPosition,EndPosition,ECC_WorldDynamic,QueryParam,FCollisionResponseParams());
+
+	if(bHit)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
+		if(Interface)
+		{
+			Interface->SpawnShotEffect(Damage);
+		}
+		else
+		{
+			//Spawn default debrie effect
+		}
+	}
+}
+
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 {
 	const FVector StartPosition = GetActorLocation();
@@ -177,7 +202,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
 		{
-			Interface->SpawnShotEffect(20);
+			Interface->SpawnShotEffect(ChargeDamage);
 		}
 		else
 		{
@@ -199,7 +224,12 @@ void ASuperCharacterClass::EndShootChargeEffect()
 {
 	UE_LOG(LogTemp,Warning,TEXT("NOT CHARGING"));
 	if(NiagaraComp)
+	{
+		
 		NiagaraComp->Deactivate();
+		Damage = 50;
+	}
+		
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
@@ -243,9 +273,6 @@ void ASuperCharacterClass::Attack()
 {
 	//Do nothing
 }
-
-
-
 
 
 

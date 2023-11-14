@@ -90,11 +90,24 @@ private:
 	UPROPERTY(EditAnywhere,Category="Input")
 	UInputAction* ShootAction;
 
+	UPROPERTY(EditAnywhere,Category="Input")
+	UInputAction* ChargeShootAction;
+
 	//Player Controller
 	APlayerController* PC;
 
 	//Shoot Variables
 	FHitResult HitTarget;
+	bool bCanShoot = false;
+
+	UPROPERTY(EditAnywhere,Category="Shoot Stats")
+	float ShootCooldown;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shoot Stats",meta=(AllowPrivateAccess))
+	float Damage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shoot Stats",meta=(AllowPrivateAccess))
+	float ChargeDamage;
 	
 	//Character Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
@@ -111,6 +124,7 @@ private:
 	float MaxMovementSpeed = 600;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
 	float RunningSpeedMultiplyer = 2;
+
 	
 	//Components
 	UPROPERTY(EditAnywhere)
@@ -132,8 +146,10 @@ private:
 	void Run(const FInputActionValue& Value);
 
 	//Shoot
+	void ChargedShoot(const FInputActionValue& Value);
 	void Shoot(const FInputActionValue& Value);
 
+	
 	//Niagara
 	UPROPERTY(EditAnywhere,Category="Effects")
 	UNiagaraSystem* ShootChargeEffect;
