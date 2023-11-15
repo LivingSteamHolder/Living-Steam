@@ -135,7 +135,7 @@ private:
 	//Camera
 	UPROPERTY(EditAnywhere, Category="Camera", meta = (AllowPrivateAccess))
 	class USpringArmComponent* SpringArmComp;
-	UPROPERTY(EditAnywhere,Category="Camera", meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere,Category="Camera", BlueprintReadOnly, meta = (AllowPrivateAccess))
 	class UCameraComponent* CameraComp;
 	
 	//Funktioner

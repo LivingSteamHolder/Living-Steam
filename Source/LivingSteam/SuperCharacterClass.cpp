@@ -108,9 +108,9 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
 		
 		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::ChargedShoot);
-		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Started,this,&ASuperCharacterClass::StartShootChargeEffect);
+		/* EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Started,this,&ASuperCharacterClass::StartShootChargeEffect);
 		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Canceled,this,&ASuperCharacterClass::EndShootChargeEffect);
-		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::EndShootChargeEffect);
+		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::EndShootChargeEffect); */
 
 		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
 	}
