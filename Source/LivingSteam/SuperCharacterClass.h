@@ -133,9 +133,9 @@ private:
 	UCharacterMovementComponent* CharacterMovement;
 	
 	//Camera
-	UPROPERTY(EditAnywhere, Category="Camera")
+	UPROPERTY(EditAnywhere, Category="Camera", meta = (AllowPrivateAccess))
 	class USpringArmComponent* SpringArmComp;
-	UPROPERTY(EditAnywhere,Category="Camera")
+	UPROPERTY(EditAnywhere,Category="Camera", meta = (AllowPrivateAccess))
 	class UCameraComponent* CameraComp;
 	
 	//Funktioner
