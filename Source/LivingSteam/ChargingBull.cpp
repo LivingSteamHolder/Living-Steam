@@ -60,25 +60,35 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 bool AChargingBull::ChargeAttack(float BoxSize)
 {
 
-
+	bIsCharging = true;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(OuterWall);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(BoxSize, BoxSize, 250));
+	FCollisionShape Box = FCollisionShape::MakeBox(FVector(10, 10, 250));
 
 
 	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+GetActorForwardVector()*350, GetActorLocation()+GetActorForwardVector() * 100000,
 											FQuat::Identity, ECC_GameTraceChannel2,
 											Box, params);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), (*FString(ChargeTraceResult.GetActor()->GetName())));
+
+
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
-		Target = ChargeTraceResult.GetActor()->GetActorLocation();
-		Target += (Target-GetActorLocation()).GetSafeNormal()*1500;
+		FHitResult ExtraTrace;
+		bool BExtraHit = World->SweepSingleByChannel(ExtraTrace, GetActorLocation()+GetActorForwardVector()*350, ChargeTraceResult.GetActor()->GetActorLocation()+GetActorForwardVector()*1500,
+												FQuat::Identity, ECC_GameTraceChannel3,
+												FCollisionShape::MakeBox(FVector(50.f,50.f,50.f)), params);
+		if(BExtraHit)
+		{
+		Target = ExtraTrace.ImpactPoint;
+		}
+		else
+		{
+			Target = ChargeTraceResult.GetActor()->GetActorLocation()+GetActorForwardVector()*1500;
+		}
 		Target.Z = GetActorLocation().Z;
-
-
-		GetWorld()->GetTimerManager().SetTimer(ChargeTimer, [this](){bIsCharging = true;}, 2.f, false );
+		
+		//GetWorld()->GetTimerManager().SetTimer(ChargeTimer, [this](){bIsCharging = true;}, 2.f, false );
 	}
 	return BHit;
 
@@ -87,12 +97,15 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 {
 	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
-	(SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000)), true);
+	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000), true);
 	if(GetActorLocation().Equals(Target))
 	{
+
 		bIsCharging = false;
 	}
 }
+
+
 
 
 void AChargingBull::RotateBull()
