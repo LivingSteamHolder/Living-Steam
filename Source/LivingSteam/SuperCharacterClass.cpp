@@ -33,6 +33,7 @@ ASuperCharacterClass::ASuperCharacterClass()
 	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);
 	CameraComp->SetRelativeRotation(FRotator(0,0,0));
 	CameraComp->SetProjectionMode(ECameraProjectionMode::Perspective);
+	
 	//Mesh Component
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	MeshComp->SetupAttachment(RootComponent);
@@ -101,22 +102,18 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Move);
-		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Run);
-		EnhancedInputComponent->BindAction(RunAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::Run);
+		
 		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
+		
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
+		
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
 		
 		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::ChargedShoot);
-		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Started,this,&ASuperCharacterClass::StartShootChargeEffect);
-		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Canceled,this,&ASuperCharacterClass::EndShootChargeEffect);
-		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::EndShootChargeEffect);
-
+		
 		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
 	}
 }
-
-
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
 {
@@ -140,28 +137,9 @@ void ASuperCharacterClass::Move(const FInputActionValue& Value)
 
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(ForwardDirection,MovementVector.Y);
+		
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(RightDirection,MovementVector.X);
-	}
-}
-
-void ASuperCharacterClass::Run(const FInputActionValue& Value)
-{
-	bool Running = Value.Get<bool>();
-
-	if(Running && CurrentStamina >= 0)
-	{
-		bRechargeStamina = false;
-		CharacterMovement = GetCharacterMovement();
-		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed * RunningSpeedMultiplyer;
-		CurrentStamina-=GetWorld()->GetDeltaSeconds();
-		UE_LOG(LogTemp,Warning,TEXT("RUNNING"));
-	}
-	else
-	{
-		bRechargeStamina = true;
-		UE_LOG(LogTemp,Warning,TEXT("NOT RUNNING"));
-		CharacterMovement->MaxWalkSpeed = MaxMovementSpeed;
 	}
 }
 
@@ -179,7 +157,7 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
 		{
-			Interface->SpawnShotEffect(Damage);
+			Interface->SpawnShotEffect(ChargeDamage);
 		}
 		else
 		{
@@ -202,7 +180,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
 		{
-			Interface->SpawnShotEffect(ChargeDamage);
+			Interface->SpawnShotEffect(Damage);
 		}
 		else
 		{
@@ -211,25 +189,6 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 	}
 
 	DrawDebugLine(GetWorld(),StartPosition,EndPosition,FColor::Red,false,5,0,5);
-}
-
-void ASuperCharacterClass::StartShootChargeEffect()
-{
-	UE_LOG(LogTemp,Warning,TEXT("CHARGING"));
-
-		NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(ShootChargeEffect,CameraComp,NAME_None,FVector(GetActorForwardVector().X + 100,50,0), CameraComp->GetForwardVector().Rotation(),EAttachLocation::Type::KeepRelativeOffset,true);
-}
-
-void ASuperCharacterClass::EndShootChargeEffect()
-{
-	UE_LOG(LogTemp,Warning,TEXT("NOT CHARGING"));
-	if(NiagaraComp)
-	{
-		
-		NiagaraComp->Deactivate();
-		Damage = 50;
-	}
-		
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
@@ -269,10 +228,6 @@ float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& D
 	return 0;
 }
 
-void ASuperCharacterClass::Attack()
-{
-	//Do nothing
-}
 
 
 
