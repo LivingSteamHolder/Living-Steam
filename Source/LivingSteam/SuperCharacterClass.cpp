@@ -206,7 +206,7 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 	{
 		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
 		float Alpha = FMath::Clamp(ElapsedTime/DashDuration,0.f,1.f);
-		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha));
+		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha),true);
 		
 		if(Alpha >= 1.0f)
 		{
