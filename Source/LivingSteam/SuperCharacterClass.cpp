@@ -89,7 +89,7 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	if(bIsDashing)
 		DashInterpolation(DeltaTime);
 	
-	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorRotation().Pitch,GetActorRotation().Yaw);
+	//UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorRotation().Pitch,GetActorRotation().Yaw);
 
 }
 
@@ -153,7 +153,7 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 
 	if(bHit)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
 		{
@@ -176,7 +176,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 
 	if(bHit)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
 		{

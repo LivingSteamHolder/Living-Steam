@@ -35,7 +35,7 @@ void AChargingBull::BeginPlay()
 void AChargingBull::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//UE_LOG(LogTemp, Warning, TEXT("%f, %f"), Target.X, Target.Y)
 
 	if (!bIsCharging)
 	{
@@ -60,6 +60,7 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 bool AChargingBull::ChargeAttack(float BoxSize)
 {
 
+
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(OuterWall);
@@ -69,14 +70,15 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+GetActorForwardVector()*350, GetActorLocation()+GetActorForwardVector() * 100000,
 											FQuat::Identity, ECC_GameTraceChannel2,
 											Box, params);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), (*FString(ChargeTraceResult.GetActor()->GetName())));
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
 		Target = ChargeTraceResult.GetActor()->GetActorLocation();
 		Target += (Target-GetActorLocation()).GetSafeNormal()*1500;
 		Target.Z = GetActorLocation().Z;
-		
 
-	GetWorld()->GetTimerManager().SetTimer(ChargeTimer, [this](){bIsCharging = true;}, 2.f, false );
+
+		GetWorld()->GetTimerManager().SetTimer(ChargeTimer, [this](){bIsCharging = true;}, 2.f, false );
 	}
 	return BHit;
 
@@ -84,6 +86,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 
 void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 {
+	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
 	(SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000)), true);
 	if(GetActorLocation().Equals(Target))
 	{
