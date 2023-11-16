@@ -31,14 +31,14 @@ public:
 	
 	bool ChargeAttack(float BoxSize = 250.f);
 
-	void JumpAttack();
+	void ExecuteChargeInterpolation(float Deltatime);
 
 	void RotateBull();
 
-	void CirclePlayer();
+	//void CirclePlayer();
 
-	UFUNCTION(BlueprintCallable)
-	FVector ExtraCharge();
+
+
 
 
 private:
@@ -49,6 +49,8 @@ private:
 	
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FHitResult ChargeTraceResult;
+
+	FTimerHandle ChargeTimer;
 	
 	UWorld* World;
 
