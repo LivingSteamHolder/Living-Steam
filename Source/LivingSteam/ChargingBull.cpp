@@ -72,6 +72,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
 		Target = ChargeTraceResult.GetActor()->GetActorLocation();
+		Target += (Target-GetActorLocation()).GetSafeNormal()*1500;
 		Target.Z = GetActorLocation().Z;
 		
 
@@ -83,7 +84,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 
 void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 {
-	(SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 1000)));
+	(SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000)), true);
 	if(GetActorLocation().Equals(Target))
 	{
 		bIsCharging = false;
