@@ -175,4 +175,16 @@ private:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadGame();
+
+	// Shahin
+	void Jump() override;
+	
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
+	bool IsDead = false;
+	
+	void ToggleHit();
+	void ResetHit();
+	
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool HasShotHit = false;
 };
