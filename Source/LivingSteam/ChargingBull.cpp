@@ -80,7 +80,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 												FCollisionShape::MakeBox(FVector(50.f,50.f,50.f)), params);
 		if(BExtraHit)
 		{
-		Target = ExtraTrace.ImpactPoint-GetActorForwardVector()*100;
+		Target = ExtraTrace.ImpactPoint-GetActorForwardVector()*50;
 		}
 		else
 		{
