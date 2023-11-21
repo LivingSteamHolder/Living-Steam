@@ -35,7 +35,9 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	float DashMaxCooldown = 0.5;
-	
+
+	UPROPERTY(BlueprintReadWrite)
+	FVector SpawnPoint;
 private:
 	//Components
 	UPROPERTY(EditAnywhere)
@@ -89,8 +91,7 @@ private:
 	UInputAction* ChargeShootAction;
 	bool bRechargeStamina = true;
 
-	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess ="true"))
-	FVector SpawnPoint;
+	
 	
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Dash", meta=(AllowPrivateAccess="true"))
 	class ATitan* CurrentTitan;
@@ -122,7 +123,8 @@ private:
 	float CurrentDashDuration;
 	
 	bool bCanMove = true;
-	
+
+	FVector MovementVector3D;
 	//Player Controller
 	APlayerController* PC;
 
@@ -166,4 +168,11 @@ private:
 	//PlayerState
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+	UPROPERTY(EditAnywhere)
+	class AChargingBull* Boss;
+
+	class USaveGameClass* SaveGameClass;
+
+	UFUNCTION(BlueprintCallable)
+	void LoadGame();
 };

@@ -5,6 +5,8 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "SaveGameClass.h"
+#include "ChargingBull.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
@@ -51,6 +53,7 @@ void ASuperCharacterClass::BeginPlay()
 	CurrentHealth = MaxHealth;
 	CurrentStamina = MaxStamina;
 
+	DashCurrentCooldown = DashMaxCooldown;
 	PC = Cast<APlayerController>(GetController());
 
 	if(PC)
@@ -63,6 +66,8 @@ void ASuperCharacterClass::BeginPlay()
 		PC->SetControlRotation(GetActorRotation());
 	}
 	SpawnPoint = GetActorLocation();
+
+	UGameplayStatics::DeleteGameInSlot("MySaveSlot",0);
 }
 
 // Called every frame
@@ -130,6 +135,9 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
 {
 	const FVector2D MovementVector = Value.Get<FVector2D>();
+
+	MovementVector3D = FVector(MovementVector.X,MovementVector.Y,0);
+	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),MovementVector.X,MovementVector.Y);
 	if(PC && bCanMove)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
@@ -207,7 +215,7 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
 		float Alpha = FMath::Clamp(ElapsedTime/DashDuration,0.f,1.f);
 		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha),true);
-		
+		//GetActorForwardVector().GetSafeNormal()
 		if(Alpha >= 1.0f)
 		{
 			bDashIsOnCooldown = true;
@@ -226,6 +234,20 @@ float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& D
 	}
 
 	return 0;
+}
+
+void ASuperCharacterClass::LoadGame()
+{
+	if(Boss == nullptr)
+	{
+		return;
+	}
+	
+	SaveGameClass = Cast<USaveGameClass>(UGameplayStatics::LoadGameFromSlot("MySaveSlot",0));
+	SetActorLocation(SaveGameClass->PlayerLocation);
+	Boss->CurrentHealt = SaveGameClass->BossCurrentHealth;
+	Boss->SetActorLocation(SaveGameClass->BossLocation);
+	Boss->bIsCharging = false;
 }
 
 

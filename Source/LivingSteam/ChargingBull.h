@@ -40,7 +40,10 @@ public:
 	//void CirclePlayer();
 
 
+	float CurrentHealt;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsCharging = false;
 
 
 private:
@@ -55,10 +58,8 @@ private:
 	FTimerHandle ChargeTimer;
 	
 	UWorld* World;
-
-	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	bool bIsCharging = false;
-
+	
+	
 	bool bFoundPlayer = false;
 
 	float CircleDirection = 1;
@@ -66,5 +67,16 @@ private:
 	UPROPERTY(EditAnywhere)
 	AActor* OuterWall;
 
+	class USaveGameClass* SaveGameClass;
+
+	FVector BullStartPosition;
+	
+	UPROPERTY(EditAnywhere)
+	float MaxHealth = 100;
+	
+	
+	
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
 
 };

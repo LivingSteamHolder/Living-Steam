@@ -8,6 +8,7 @@
 #include "SuperCharacterClass.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
+#include "SaveGameClass.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Physics/ImmediatePhysics/ImmediatePhysicsShared/ImmediatePhysicsCore.h"
 
@@ -28,7 +29,8 @@ void AChargingBull::BeginPlay()
 	PlayerRef = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	World = GetWorld();
 	bIsCharging = false;
-	
+	CurrentHealt = MaxHealth;
+	BullStartPosition = GetActorLocation();
 }
 
 // Called every frame
@@ -59,8 +61,7 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 bool AChargingBull::ChargeAttack(float BoxSize)
 {
-
-	bIsCharging = true;
+	
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(OuterWall);
@@ -74,6 +75,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
+		bIsCharging = true;
 		FHitResult ExtraTrace;
 		bool BExtraHit = World->SweepSingleByChannel(ExtraTrace, GetActorLocation()+GetActorForwardVector()*350, ChargeTraceResult.GetActor()->GetActorLocation()+GetActorForwardVector()*1500,
 												FQuat::Identity, ECC_GameTraceChannel3,
@@ -105,9 +107,6 @@ void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 	}
 }
 
-
-
-
 void AChargingBull::RotateBull()
 {
 	if(PlayerRef)
@@ -117,6 +116,19 @@ void AChargingBull::RotateBull()
 	NewRotation.Pitch = 0;
 	SetActorRotation(NewRotation);
 		
+	}
+}
+
+void AChargingBull::SaveGame()
+{
+	if(!UGameplayStatics::DoesSaveGameExist("MySaveSlot",0))
+	{
+		SaveGameClass = Cast<USaveGameClass>(UGameplayStatics::CreateSaveGameObject(USaveGameClass::StaticClass()));
+		SaveGameClass->BossLocation = BullStartPosition;
+		SaveGameClass->BossCurrentHealth = CurrentHealt;
+		SaveGameClass->PlayerLocation = Cast<ASuperCharacterClass>(PlayerRef)->SpawnPoint ;
+		UGameplayStatics::SaveGameToSlot(SaveGameClass,"MySaveSlot",0);
+		UE_LOG(LogTemp,Warning,TEXT("GAME SAVED"));
 	}
 }
 
