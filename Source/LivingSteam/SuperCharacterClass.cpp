@@ -110,7 +110,7 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		
 		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
 		
-		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Jump);
 		
 		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
 		
@@ -122,6 +122,9 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
 {
+	if(IsDead)
+		return;
+	
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
@@ -134,10 +137,13 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
 {
+	if(IsDead)
+		return;
+	
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
 	MovementVector3D = FVector(MovementVector.X,MovementVector.Y,0);
-	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),MovementVector.X,MovementVector.Y);
+	// UE_LOG(LogTemp,Warning,TEXT("%f,%f"),MovementVector.X,MovementVector.Y);
 	if(PC && bCanMove)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
@@ -153,6 +159,9 @@ void ASuperCharacterClass::Move(const FInputActionValue& Value)
 
 void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 {
+	if(IsDead)
+		return;
+	
 	const FVector StartPosition = GetActorLocation();
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
 	FCollisionQueryParams QueryParam;
@@ -161,6 +170,8 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 
 	if(bHit)
 	{
+		ToggleHit();
+		
 		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
@@ -176,6 +187,9 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 {
+	if(IsDead)
+		return;
+	
 	const FVector StartPosition = GetActorLocation();
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
 	FCollisionQueryParams QueryParam;
@@ -184,6 +198,8 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 
 	if(bHit)
 	{
+		ToggleHit();
+		
 		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
 		if(Interface)
@@ -201,6 +217,9 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 {
+	if(IsDead)
+		return;
+	
 	if(Value.Get<bool>() && !bIsDashing && !bDashIsOnCooldown)
 	{
 		bIsDashing = true;
@@ -250,7 +269,24 @@ void ASuperCharacterClass::LoadGame()
 	Boss->bIsCharging = false;
 }
 
+void ASuperCharacterClass::Jump()
+{
+	if(IsDead)
+		return;
+	
+	Super::Jump();
+}
 
+void ASuperCharacterClass::ToggleHit()
+{
+	HasShotHit = true;
 
+	FTimerHandle Timerhandle;
+	GetWorldTimerManager().SetTimer(
+	Timerhandle, this, &ASuperCharacterClass::ResetHit, 0.1f);
+}
 
-
+void ASuperCharacterClass::ResetHit()
+{
+	HasShotHit = false;
+}

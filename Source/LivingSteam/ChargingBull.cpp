@@ -42,6 +42,7 @@ void AChargingBull::Tick(float DeltaTime)
 	if (!bIsCharging)
 	{
 	RotateBull();
+		IsRotating = true;
 	}
 	else
 	{
@@ -71,8 +72,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+GetActorForwardVector()*350, GetActorLocation()+GetActorForwardVector() * 100000,
 											FQuat::Identity, ECC_GameTraceChannel2,
 											Box, params);
-
-
+	
 	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
 		bIsCharging = true;
@@ -82,7 +82,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 												FCollisionShape::MakeBox(FVector(50.f,50.f,50.f)), params);
 		if(BExtraHit)
 		{
-		Target = ExtraTrace.ImpactPoint-GetActorForwardVector()*50;
+			Target = ExtraTrace.ImpactPoint-GetActorForwardVector()*50;
 		}
 		else
 		{
@@ -98,11 +98,13 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 
 void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 {
+	IsPreparingToCharge = false;
+	IsRotating = false;
+
 	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
 	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000), true);
 	if(GetActorLocation().Equals(Target))
 	{
-
 		bIsCharging = false;
 	}
 }
@@ -111,12 +113,25 @@ void AChargingBull::RotateBull()
 {
 	if(PlayerRef)
 	{
-		FRotator NewRotation =	FMath::RInterpConstantTo(GetActorRotation(),(PlayerRef->GetActorLocation()-GetActorLocation()).Rotation(), World->GetDeltaSeconds(), 100);
-
-	NewRotation.Pitch = 0;
-	SetActorRotation(NewRotation);
+		const FRotator& TargetRotation = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
 		
-	}
+		FRotator NewRotation =	FMath::RInterpConstantTo(GetActorRotation(),TargetRotation, World->GetDeltaSeconds(), 100);
+
+		NewRotation.Pitch = 0;
+		SetActorRotation(NewRotation);
+
+				
+		if(GetActorRotation().Yaw == TargetRotation.Yaw)
+		{
+			IsRotating = false;
+			IsPreparingToCharge = true;
+		}
+		else
+		{
+			IsRotating = true;
+			IsPreparingToCharge = false;
+		}
+	} 
 }
 
 void AChargingBull::SaveGame()

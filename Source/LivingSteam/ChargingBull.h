@@ -79,4 +79,11 @@ private:
 	UFUNCTION(BlueprintCallable)
 	void SaveGame();
 
+
+	// Shahin
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool IsPreparingToCharge = false;
+	
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool IsRotating = false;
 };
