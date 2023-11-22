@@ -18,6 +18,9 @@ AChargingBull::AChargingBull()
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	MaxHealth = 100;
+	CurrentHealt = MaxHealth;
+
 
 }
 
@@ -31,12 +34,14 @@ void AChargingBull::BeginPlay()
 	bIsCharging = false;
 	CurrentHealt = MaxHealth;
 	BullStartPosition = GetActorLocation();
+	PillarsDestroyed = 0.f;
 }
 
 // Called every frame
 void AChargingBull::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	;
+	UE_LOG(LogTemp, Warning, TEXT("%f"), PillarsDestroyed)
 	//UE_LOG(LogTemp, Warning, TEXT("%f, %f"), Target.X, Target.Y)
 
 	if (!bIsCharging)
@@ -134,6 +139,19 @@ void AChargingBull::RotateBull()
 	} 
 }
 
+void AChargingBull::SpawnShotEffect(float DamageAmount)
+{
+	
+}
+
+void AChargingBull::TakeDamage(float DamageAmount)
+{
+	if (bVulnerable)
+		CurrentHealt-=DamageAmount;
+	if (CurrentHealt<=0)
+		Destroy();
+}
+
 void AChargingBull::SaveGame()
 {
 	if(!UGameplayStatics::DoesSaveGameExist("MySaveSlot",0))
@@ -145,6 +163,11 @@ void AChargingBull::SaveGame()
 		UGameplayStatics::SaveGameToSlot(SaveGameClass,"MySaveSlot",0);
 		UE_LOG(LogTemp,Warning,TEXT("GAME SAVED"));
 	}
+}
+
+void AChargingBull::AddDestroyedPillar()
+{
+	PillarsDestroyed+=1;
 }
 
 
