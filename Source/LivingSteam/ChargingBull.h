@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ShotActionInterface.h"
 #include "GameFramework/Pawn.h"
 #include "ChargingBull.generated.h"
 
 
 UCLASS()
-class LIVINGSTEAM_API AChargingBull : public APawn
+class LIVINGSTEAM_API AChargingBull : public APawn, public IShotActionInterface
 {
 	GENERATED_BODY()
 
@@ -42,6 +43,10 @@ public:
 
 	float CurrentHealt;
 
+	void SpawnShotEffect(float DamageAmount = 0) override;
+
+	void TakeDamage(float DamageAmount);
+	
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsCharging = false;
 
@@ -73,17 +78,23 @@ private:
 	
 	UPROPERTY(EditAnywhere)
 	float MaxHealth = 100;
-	
+
+	UPROPERTY(BlueprintReadWrite, meta= (AllowPrivateAccess))
+	bool bVulnerable;
 	
 	
 	UFUNCTION(BlueprintCallable)
 	void SaveGame();
 
-
+	UFUNCTION(BlueprintCallable)
+	void AddDestroyedPillar();
 	// Shahin
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool IsPreparingToCharge = false;
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool IsRotating = false;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
+	float PillarsDestroyed;
 };
