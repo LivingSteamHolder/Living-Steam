@@ -6,11 +6,11 @@
 // Sets default values
 ABoulder::ABoulder()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = false;
 
 	RootComponent = CreateDefaultSubobject<UStaticMeshComponent>("RootComponent");
-	
+
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	Mesh->SetupAttachment(RootComponent);
 }
@@ -26,4 +26,3 @@ void ABoulder::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
-

@@ -1,29 +1,55 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Shockwave.h"
 
-// Sets default values
+#include "SuperCharacterClass.h"
+
 AShockwave::AShockwave()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Mesh");
 	MeshComponent->SetupAttachment(RootComponent);
+
+	MeshComponent->SetGenerateOverlapEvents(true);
+	MeshComponent->SetCollisionResponseToAllChannels(ECR_Overlap);
 }
 
-// Called when the game starts or when spawned
 void AShockwave::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
 void AShockwave::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	const FVector& CurrentScale = GetActorScale();
+	const FVector TargetScale = FMath::VInterpConstantTo(CurrentScale, {Scale, Scale, Scale}, DeltaTime, InterpSpeed);
+
+	SetActorScale3D(TargetScale);
+
+	if (CurrentScale == TargetScale)
+		Destroy();
 }
 
+void AShockwave::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
+
+	const ASuperCharacterClass* Player = Cast<ASuperCharacterClass>(OtherActor);
+
+	if (!Player)
+		return;
+
+	FCollisionQueryParams CollisionParameters;
+	CollisionParameters.AddIgnoredActor(this);
+
+	FHitResult HitResult;
+	bool Hit = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), Player->GetActorLocation(),
+	                                                ECC_GameTraceChannel1, CollisionParameters);
+	DrawDebugLine(GetWorld(), GetActorLocation(), Player->GetActorLocation(), FColor::Blue, false, 10.f);
+
+	if (!Hit || !Cast<ASuperCharacterClass>(HitResult.GetActor()))
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("shockwave hit player"));
+}
