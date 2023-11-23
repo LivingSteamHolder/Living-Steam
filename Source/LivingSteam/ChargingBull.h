@@ -53,6 +53,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsCharging = false;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bVulnerable;
 
 private:
 	class ACharacter* PlayerRef;
@@ -86,8 +88,6 @@ private:
 	float MaxHealth = 100.f;
 
 
-	UPROPERTY(BlueprintReadWrite, meta= (AllowPrivateAccess))
-	bool bVulnerable;
 	
 	
 	UFUNCTION(BlueprintCallable)

@@ -139,7 +139,9 @@ void AChargingBull::RotateBull()
 
 void AChargingBull::StartNextPhase()
 {
-
+	PhaseNumber = 2;
+	Target = FVector(0,0,2000);
+	bIsCharging=true;
 }
 
 void AChargingBull::SpawnShotEffect(float DamageAmount)
@@ -156,7 +158,7 @@ void AChargingBull::TakeDamage(float DamageAmount)
 	else if(CurrentHealt < VulnerableHealth)
 	{
 		bVulnerable = false;
-		if(PillarsDestroyed<=3)
+		if(PillarsDestroyed==3)
 			StartNextPhase();
 		else
 			VulnerableHealth = CurrentHealt-20;

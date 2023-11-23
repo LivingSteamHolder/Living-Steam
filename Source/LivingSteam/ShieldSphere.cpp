@@ -3,6 +3,9 @@
 
 #include "ShieldSphere.h"
 
+#include "ChargingBull.h"
+#include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AShieldSphere::AShieldSphere()
 {
@@ -36,7 +39,11 @@ void AShieldSphere::TakeDamage(float DamageAmount)
 	if (bVulnerable)
 		SphereHealth-=DamageAmount;
 	if (SphereHealth<=0)
+	{
+		AChargingBull* Bull =Cast<AChargingBull>( UGameplayStatics::GetActorOfClass(this, AChargingBull::StaticClass()));
+		Bull->bVulnerable=true;
 		Destroy();
+	}
 
 }
 
