@@ -28,7 +28,6 @@ void AShieldSphere::Tick(float DeltaTime)
 void AShieldSphere::SpawnShotEffect(float DamageAmount)
 {
 	TakeDamage(DamageAmount);
-	UE_LOG(LogTemp,Warning,TEXT("HEAD HIT"));
 	//Spawn Particle effect
 }
 

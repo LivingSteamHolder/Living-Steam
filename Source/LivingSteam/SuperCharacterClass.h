@@ -94,7 +94,7 @@ private:
 	
 	
 	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Dash", meta=(AllowPrivateAccess="true"))
-	class ATitan* CurrentTitan;
+	class AActor* CurrentTitan;
 	
 	//Shoot Variables
 	UPROPERTY(EditAnywhere,Category="Shoot Stats")

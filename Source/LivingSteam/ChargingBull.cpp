@@ -29,6 +29,7 @@ void AChargingBull::BeginPlay()
 	PlayerRef = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	World = GetWorld();
 	bIsCharging = false;
+	bVulnerable = true;
 	CurrentHealt = MaxHealth;
 	BullStartPosition = GetActorLocation();
 	PillarsDestroyed = 0.f;
@@ -37,7 +38,7 @@ void AChargingBull::BeginPlay()
 // Called every frame
 void AChargingBull::Tick(float DeltaTime)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f"), PillarsDestroyed)
+	UE_LOG(LogTemp, Warning, TEXT("%f"), CurrentHealt)
 	//UE_LOG(LogTemp, Warning, TEXT("%f, %f"), Target.X, Target.Y)
 
 	if (!bIsCharging)
@@ -135,12 +136,13 @@ void AChargingBull::RotateBull()
 
 void AChargingBull::SpawnShotEffect(float DamageAmount)
 {
+	TakeDamage(DamageAmount);
 }
 
 void AChargingBull::TakeDamage(float DamageAmount)
 {
 	if (bVulnerable)
-		CurrentHealt -= DamageAmount;
+		this->CurrentHealt -= DamageAmount;
 	if (CurrentHealt <= 0)
 		Destroy();
 }

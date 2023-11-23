@@ -34,14 +34,14 @@ public:
 
 	void ExecuteChargeInterpolation(float Deltatime);
 
-
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float CurrentHealt = 100.f;
 
 	void RotateBull();
 
-	//void CirclePlayer();
 
 
-	float CurrentHealt;
+
 
 	void SpawnShotEffect(float DamageAmount = 0) override;
 
@@ -76,8 +76,9 @@ private:
 
 	FVector BullStartPosition;
 	
-	UPROPERTY(EditAnywhere)
-	float MaxHealth = 100;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess))
+	float MaxHealth = 100.f;
+
 
 	UPROPERTY(BlueprintReadWrite, meta= (AllowPrivateAccess))
 	bool bVulnerable;
@@ -97,4 +98,7 @@ private:
 
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
 	float PillarsDestroyed;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta =(AllowPrivateAccess="true"))
+	TArray<AActor*> Boulders;
 };
