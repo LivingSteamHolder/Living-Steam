@@ -42,7 +42,6 @@ void AShieldSphere::TakeDamage(float DamageAmount)
 	if (SphereHealth<=0)
 	{
 		Bull->bVulnerable=true;
-		Bull->VulnerableHealth -= 21;
 		Destroy();
 	}
 
