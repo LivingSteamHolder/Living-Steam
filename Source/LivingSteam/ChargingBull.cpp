@@ -35,7 +35,7 @@ void AChargingBull::BeginPlay()
 	bIsCharging = false;
 	bVulnerable = false;
 	CurrentHealt = MaxHealth;
-	VulnerableHealth = MaxHealth-21;
+	VulnerableHealth = MaxHealth-20;
 	BullStartPosition = GetActorLocation();
 	PillarsDestroyed = 0.f;
 }
@@ -106,7 +106,7 @@ void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 	IsRotating = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
-	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 4000), true);
+	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000), true);
 	if (GetActorLocation().Equals(Target))
 	{
 		bIsCharging = false;
@@ -158,14 +158,14 @@ void AChargingBull::TakeDamage(float DamageAmount)
 	if (bVulnerable)
 		this->CurrentHealt -= DamageAmount;
 	if(CurrentHealt<0)
-		UGameplayStatics::OpenLevel(this,"MainMenu");
+		Destroy();
 	else if(CurrentHealt < VulnerableHealth)
 	{
 		bVulnerable = false;
 		if(PillarsDestroyed==3)
 			StartNextPhase();
 		else
-			VulnerableHealth -= 21;
+			VulnerableHealth = CurrentHealt-20;
 	}
 }
 
