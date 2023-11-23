@@ -8,6 +8,7 @@
 #include "SuperCharacterClass.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
+#include "SaveGameClass.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Physics/ImmediatePhysics/ImmediatePhysicsShared/ImmediatePhysicsCore.h"
 
@@ -15,137 +16,151 @@
 // Sets default values
 AChargingBull::AChargingBull()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	MaxHealth = 100;
+	CurrentHealt = MaxHealth;
 }
 
 // Called when the game starts or when spawned
 void AChargingBull::BeginPlay()
 {
-	
 	Super::BeginPlay();
 	PlayerRef = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	World = GetWorld();
-	
+	bIsCharging = false;
+	bVulnerable = true;
+	CurrentHealt = MaxHealth;
+	BullStartPosition = GetActorLocation();
+	PillarsDestroyed = 0.f;
 }
 
 // Called every frame
 void AChargingBull::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-	ChargeAttack();
+	UE_LOG(LogTemp, Warning, TEXT("%f"), CurrentHealt)
+	//UE_LOG(LogTemp, Warning, TEXT("%f, %f"), Target.X, Target.Y)
 
-	if(!bIsCharging)
+	if (!bIsCharging)
 	{
 		RotateBull();
-		CirclePlayer();
+		IsRotating = true;
 	}
-
+	else
+	{
+		ExecuteChargeInterpolation(DeltaTime);
+	}
 }
 
 // Called to bind functionality to input
 void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 bool AChargingBull::ChargeAttack(float BoxSize)
 {
-
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(this);
 	params.AddIgnoredActor(OuterWall);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(BoxSize, BoxSize, 250));
+	FCollisionShape Box = FCollisionShape::MakeBox(FVector(10, 10, 250));
 
 
-	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation()+GetActorForwardVector()*350, GetActorLocation()+GetActorForwardVector() * 100000,
-											FQuat::Identity, ECC_GameTraceChannel2,
-											Box, params);
-	UE_LOG(LogTemp, Warning, TEXT("Target: %f, %f"), Target.X, Target.Y);
+	bool BHit = World->SweepSingleByChannel(ChargeTraceResult, GetActorLocation() + GetActorForwardVector() * 350,
+	                                        GetActorLocation() + GetActorForwardVector() * 100000,
+	                                        FQuat::Identity, ECC_GameTraceChannel2,
+	                                        Box, params);
 
-	if(BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
+	if (BHit && Cast<ASuperCharacterClass>(ChargeTraceResult.GetActor()))
 	{
-		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat::Identity, FColor::Purple, false);
+		bIsCharging = true;
+		FHitResult ExtraTrace;
+		bool BExtraHit = World->SweepSingleByChannel(ExtraTrace, GetActorLocation() + GetActorForwardVector() * 350,
+		                                             ChargeTraceResult.GetActor()->GetActorLocation() +
+		                                             GetActorForwardVector() * 1500,
+		                                             FQuat::Identity, ECC_GameTraceChannel3,
+		                                             FCollisionShape::MakeBox(FVector(50.f, 50.f, 50.f)), params);
+		if (BExtraHit)
+		{
+			Target = ExtraTrace.ImpactPoint - GetActorForwardVector() * 50;
+		}
+		else
+		{
+			Target = ChargeTraceResult.GetActor()->GetActorLocation() + GetActorForwardVector() * 1500;
+		}
+		Target.Z = GetActorLocation().Z;
 
-		Target = ChargeTraceResult.GetActor()->GetActorLocation();
-
+		//GetWorld()->GetTimerManager().SetTimer(ChargeTimer, [this](){bIsCharging = true;}, 2.f, false );
 	}
 	return BHit;
 }
 
-void AChargingBull::JumpAttack()
+void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 {
-	
+	IsPreparingToCharge = false;
+	IsRotating = false;
+
+	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
+	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 2000), true);
+	if (GetActorLocation().Equals(Target))
+	{
+		bIsCharging = false;
+	}
 }
 
 void AChargingBull::RotateBull()
 {
-	if(PlayerRef)
+	if (PlayerRef)
 	{
-	FRotator rot = (PlayerRef->GetActorLocation()-GetActorLocation()).Rotation();
-	rot.Pitch = 0;
-	SetActorRotation(rot);
-		
+		const FRotator& TargetRotation = (PlayerRef->GetActorLocation() - GetActorLocation()).Rotation();
+
+		FRotator NewRotation = FMath::RInterpConstantTo(GetActorRotation(), TargetRotation, World->GetDeltaSeconds(),
+		                                                100);
+
+		NewRotation.Pitch = 0;
+		SetActorRotation(NewRotation);
+
+
+		if (GetActorRotation().Yaw == TargetRotation.Yaw)
+		{
+			IsRotating = false;
+			IsPreparingToCharge = true;
+		}
+		else
+		{
+			IsRotating = true;
+			IsPreparingToCharge = false;
+		}
 	}
 }
 
-void AChargingBull::CirclePlayer()
+void AChargingBull::SpawnShotEffect(float DamageAmount)
 {
-
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(this);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(250, 250, 250));
-	FHitResult FHit;
-
-	bool BHit = World->SweepSingleByChannel(FHit, GetActorLocation()+FVector(0,0,80)+GetActorRightVector()* CircleDirection*100, GetActorLocation()+FVector(0,0,80)+ GetActorRightVector() * 400* CircleDirection,
-											FQuat::Identity, ECC_GameTraceChannel2,
-											Box, params);
-
-
-
-	if(BHit)
-	{
-		DrawDebugBox(GetWorld(), ChargeTraceResult.Location, Box.GetExtent(), FQuat::Identity, FColor::Purple, false);
-		CircleDirection*=-1;
-	}
-	
-
-	bFoundPlayer = (ChargeTraceResult.GetActor()!=PlayerRef);
-
-	if(bFoundPlayer)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s"),ChargeTraceResult.GetActor()!=PlayerRef ? TEXT("TRUE"):TEXT("FALSE"));
-	FVector TangentVec = (FVector::CrossProduct(FVector(0,0,1), PlayerRef->GetActorLocation()-GetActorLocation())).GetSafeNormal();
-	SetActorLocation(GetActorLocation()+TangentVec*CircleDirection*20);
-	}
-	ChargeAttack(50.f);
-	if((ChargeTraceResult.ImpactPoint-GetActorLocation()).Length()< 100)
-		SetActorLocation(GetActorLocation()+GetActorForwardVector()*10);
-
+	TakeDamage(DamageAmount);
 }
 
-FVector AChargingBull::ExtraCharge()
+void AChargingBull::TakeDamage(float DamageAmount)
 {
-	FCollisionQueryParams params;
-	params.AddIgnoredActor(this);
-	FCollisionShape Box = FCollisionShape::MakeBox(FVector(150, 150, 50));
-	FHitResult FHit;
-
-	bool BHit = World->SweepSingleByChannel(FHit, GetActorLocation()+FVector(0,0,80), GetActorLocation()+FVector(0,0,80)+ GetActorForwardVector() * 500,
-											FQuat::Identity, ECC_GameTraceChannel3,
-											Box, params);
-
-	if(BHit)
-		return FHit.ImpactPoint;
-	else
-	{
-		return GetActorLocation() + GetActorForwardVector()*800;
-	}
-
-	
+	if (bVulnerable)
+		this->CurrentHealt -= DamageAmount;
+	if (CurrentHealt <= 0)
+		Destroy();
 }
 
+void AChargingBull::SaveGame()
+{
+	if (!UGameplayStatics::DoesSaveGameExist("MySaveSlot", 0))
+	{
+		SaveGameClass = Cast<USaveGameClass>(UGameplayStatics::CreateSaveGameObject(USaveGameClass::StaticClass()));
+		SaveGameClass->BossLocation = BullStartPosition;
+		SaveGameClass->BossCurrentHealth = CurrentHealt;
+		SaveGameClass->PlayerLocation = Cast<ASuperCharacterClass>(PlayerRef)->SpawnPoint;
+		UGameplayStatics::SaveGameToSlot(SaveGameClass, "MySaveSlot", 0);
+		UE_LOG(LogTemp, Warning, TEXT("GAME SAVED"));
+	}
+}
 
-
+void AChargingBull::AddDestroyedPillar()
+{
+	PillarsDestroyed += 1.f;
+}

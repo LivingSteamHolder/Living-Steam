@@ -3,12 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ShotActionInterface.h"
 #include "GameFramework/Pawn.h"
 #include "ChargingBull.generated.h"
 
 
 UCLASS()
-class LIVINGSTEAM_API AChargingBull : public APawn
+class LIVINGSTEAM_API AChargingBull : public APawn, public IShotActionInterface
 {
 	GENERATED_BODY()
 
@@ -31,14 +32,23 @@ public:
 	
 	bool ChargeAttack(float BoxSize = 250.f);
 
-	void JumpAttack();
+	void ExecuteChargeInterpolation(float Deltatime);
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float CurrentHealt = 100.f;
 
 	void RotateBull();
 
-	void CirclePlayer();
 
-	UFUNCTION(BlueprintCallable)
-	FVector ExtraCharge();
+
+
+
+	void SpawnShotEffect(float DamageAmount = 0) override;
+
+	void TakeDamage(float DamageAmount);
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsCharging = false;
 
 
 private:
@@ -49,12 +59,12 @@ private:
 	
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	FHitResult ChargeTraceResult;
+
+	FTimerHandle ChargeTimer;
 	
 	UWorld* World;
-
-	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	bool bIsCharging = false;
-
+	
+	
 	bool bFoundPlayer = false;
 
 	float CircleDirection = 1;
@@ -62,5 +72,33 @@ private:
 	UPROPERTY(EditAnywhere)
 	AActor* OuterWall;
 
+	class USaveGameClass* SaveGameClass;
 
+	FVector BullStartPosition;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess))
+	float MaxHealth = 100.f;
+
+
+	UPROPERTY(BlueprintReadWrite, meta= (AllowPrivateAccess))
+	bool bVulnerable;
+	
+	
+	UFUNCTION(BlueprintCallable)
+	void SaveGame();
+
+	UFUNCTION(BlueprintCallable)
+	void AddDestroyedPillar();
+	// Shahin
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool IsPreparingToCharge = false;
+	
+	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
+	bool IsRotating = false;
+
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
+	float PillarsDestroyed;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta =(AllowPrivateAccess="true"))
+	TArray<AActor*> Boulders;
 };
