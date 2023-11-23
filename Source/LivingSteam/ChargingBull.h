@@ -36,10 +36,13 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float CurrentHealt = 100.f;
-
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	float VulnerableHealth;
+	
 	void RotateBull();
 
-
+	void StartNextPhase();
 
 
 
@@ -66,7 +69,10 @@ private:
 	
 	
 	bool bFoundPlayer = false;
-
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess))
+	int PhaseNumber = 1;
+	
 	float CircleDirection = 1;
 
 	UPROPERTY(EditAnywhere)
@@ -99,6 +105,6 @@ private:
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
 	float PillarsDestroyed;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta =(AllowPrivateAccess="true"))
-	TArray<AActor*> Boulders;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere,meta=(AllowPrivateAccess))
+	TArray<AActor*> PillarArray;
 };
