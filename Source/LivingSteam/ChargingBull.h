@@ -68,7 +68,12 @@ private:
 	FTimerHandle ChargeTimer;
 	
 	UWorld* World;
-	
+
+	UFUNCTION(BlueprintCallable)
+	void ShockWaveAttack();
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Shard", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AActor> BPShockwave;
 	
 	bool bFoundPlayer = false;
 	
