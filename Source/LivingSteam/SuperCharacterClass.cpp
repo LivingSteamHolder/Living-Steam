@@ -20,22 +20,22 @@
 // Sets default values
 ASuperCharacterClass::ASuperCharacterClass()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	//SpringArm Component
 	SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
 	SpringArmComp->SetupAttachment(RootComponent);
 	SpringArmComp->TargetArmLength = 0;
-	SpringArmComp->SocketOffset = FVector(0,0,0);
-	SpringArmComp->SetRelativeRotation(FRotator(0,0,0));
+	SpringArmComp->SocketOffset = FVector(0, 0, 0);
+	SpringArmComp->SetRelativeRotation(FRotator(0, 0, 0));
 
 	//Camera Component
 	CameraComp = CreateDefaultSubobject<UCameraComponent>("PlayerCamera");
-	CameraComp->SetupAttachment(SpringArmComp,USpringArmComponent::SocketName);
-	CameraComp->SetRelativeRotation(FRotator(0,0,0));
+	CameraComp->SetupAttachment(SpringArmComp, USpringArmComponent::SocketName);
+	CameraComp->SetRelativeRotation(FRotator(0, 0, 0));
 	CameraComp->SetProjectionMode(ECameraProjectionMode::Perspective);
-	
+
 	//Mesh Component
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>("PlayerMesh");
 	MeshComp->SetupAttachment(RootComponent);
@@ -43,7 +43,6 @@ ASuperCharacterClass::ASuperCharacterClass()
 
 	EffectLocation = CreateDefaultSubobject<USceneComponent>("ShotChargeEffect");
 	EffectLocation->SetupAttachment(RootComponent);
-	
 }
 
 // Called when the game starts or when spawned
@@ -56,75 +55,62 @@ void ASuperCharacterClass::BeginPlay()
 	DashCurrentCooldown = DashMaxCooldown;
 	PC = Cast<APlayerController>(GetController());
 
-	if(PC)
+	if (PC)
 	{
-		UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer());
-		if(SubSystem)
+		UEnhancedInputLocalPlayerSubsystem* SubSystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+			PC->GetLocalPlayer());
+		if (SubSystem)
 		{
-			SubSystem->AddMappingContext(PlayerMapping,0);
+			SubSystem->AddMappingContext(PlayerMapping, 0);
 		}
 		PC->SetControlRotation(GetActorRotation());
 	}
 	SpawnPoint = GetActorLocation();
 
-	UGameplayStatics::DeleteGameInSlot("MySaveSlot",0);
+	UGameplayStatics::DeleteGameInSlot("MySaveSlot", 0);
 }
 
 // Called every frame
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	if (bRechargeStamina && CurrentStamina < MaxStamina)
-	{
-		CurrentStamina+=DeltaTime*StaminaRegen;
-	}
 
-	if(bDashIsOnCooldown)
-	{
-		DashCurrentCooldown-= DeltaTime;
-	}
+	CooldownsHandler(DeltaTime);
 
-	if(DashCurrentCooldown < 0.0f)
-	{
-		bDashIsOnCooldown = false;
-		DashCurrentCooldown = DashMaxCooldown;
-	}
-	
-	if(bIsDashing)
+	if (bIsDashing)
 		DashInterpolation(DeltaTime);
-	
-	//UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorRotation().Pitch,GetActorRotation().Yaw);
 
+	//UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorRotation().Pitch,GetActorRotation().Yaw);
 }
 
 // Called to bind functionality to input
 void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	
+
 	//Bind Axis
-	if(UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(MoveAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Move);
-		
-		EnhancedInputComponent->BindAction(LookAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Look);
-		
-		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Jump);
-		
-		EnhancedInputComponent->BindAction(DashAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Dash);
-		
-		EnhancedInputComponent->BindAction(ChargeShootAction,ETriggerEvent::Completed,this,&ASuperCharacterClass::ChargedShoot);
-		
-		EnhancedInputComponent->BindAction(ShootAction,ETriggerEvent::Triggered,this,&ASuperCharacterClass::Shoot);
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Move);
+
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Look);
+
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Jump);
+
+		EnhancedInputComponent->BindAction(DashAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Dash);
+
+		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Completed, this,
+		                                   &ASuperCharacterClass::ChargedShoot);
+
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
 }
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
 {
-	if(IsDead)
+	if (IsDead)
 		return;
-	
+
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
@@ -137,44 +123,45 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
 {
-	if(IsDead)
+	if (IsDead)
 		return;
-	
+
 	const FVector2D MovementVector = Value.Get<FVector2D>();
 
-	MovementVector3D = FVector(MovementVector.X,MovementVector.Y,0);
+	MovementVector3D = FVector(MovementVector.X, MovementVector.Y, 0);
 	// UE_LOG(LogTemp,Warning,TEXT("%f,%f"),MovementVector.X,MovementVector.Y);
-	if(PC && bCanMove)
+	if (PC && bCanMove)
 	{
 		const FRotator Rotation = PC->GetControlRotation();
-		const FRotator YawRotation(0,Rotation.Yaw,0.f);
+		const FRotator YawRotation(0, Rotation.Yaw, 0.f);
 
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(ForwardDirection,MovementVector.Y);
-		
+		AddMovementInput(ForwardDirection, MovementVector.Y);
+
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(RightDirection,MovementVector.X);
+		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
 
 void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 {
-	if(IsDead)
+	if (IsDead)
 		return;
-	
+
 	const FVector StartPosition = GetActorLocation();
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
 	FCollisionQueryParams QueryParam;
 	QueryParam.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget,StartPosition,EndPosition,ECC_WorldDynamic,QueryParam,FCollisionResponseParams());
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
+	                                                 QueryParam, FCollisionResponseParams());
 
-	if(bHit)
+	if (bHit)
 	{
 		ToggleHit();
-		
+
 		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
-		if(Interface)
+		if (Interface)
 		{
 			Interface->SpawnShotEffect(ChargeDamage);
 		}
@@ -187,22 +174,28 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 {
-	if(IsDead)
+	if (IsDead)
 		return;
-	
+
+	if (bShootOnCooldown)
+	{
+		return;
+	}
+
 	const FVector StartPosition = GetActorLocation();
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
 	FCollisionQueryParams QueryParam;
 	QueryParam.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget,StartPosition,EndPosition,ECC_WorldDynamic,QueryParam,FCollisionResponseParams());
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
+	                                                 QueryParam, FCollisionResponseParams());
 
-	if(bHit)
+	if (bHit)
 	{
 		ToggleHit();
-		
+
 		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
 		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
-		if(Interface)
+		if (Interface)
 		{
 			Interface->SpawnShotEffect(Damage);
 		}
@@ -212,15 +205,16 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		}
 	}
 
-	DrawDebugLine(GetWorld(),StartPosition,EndPosition,FColor::Red,false,5,0,5);
+	bShootOnCooldown = true;
+	DrawDebugLine(GetWorld(), StartPosition, EndPosition, FColor::Red, false, 5, 0, 5);
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 {
-	if(IsDead)
+	if (IsDead)
 		return;
-	
-	if(Value.Get<bool>() && !bIsDashing && !bDashIsOnCooldown)
+
+	if (Value.Get<bool>() && !bIsDashing && !bDashIsOnCooldown)
 	{
 		bIsDashing = true;
 		DashStartTime = GetWorld()->GetTimeSeconds();
@@ -229,13 +223,15 @@ void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 
 void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 {
-	if(bIsDashing)
+	if (bIsDashing)
 	{
 		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
-		float Alpha = FMath::Clamp(ElapsedTime/DashDuration,0.f,1.f);
-		SetActorLocation(FMath::Lerp(GetActorLocation(),GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),Alpha),true);
+		float Alpha = FMath::Clamp(ElapsedTime / DashDuration, 0.f, 1.f);
+		SetActorLocation(FMath::Lerp(GetActorLocation(),
+		                             GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),
+		                             Alpha), true);
 		//GetActorForwardVector().GetSafeNormal()
-		if(Alpha >= 1.0f)
+		if (Alpha >= 1.0f)
 		{
 			bDashIsOnCooldown = true;
 			bIsDashing = false;
@@ -244,10 +240,11 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 }
 
 
-float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) 
+float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
+                                       AController* EventInstigator, AActor* DamageCauser)
 {
-	CurrentHealth-=DamageAmount;
-	if(CurrentHealth<=0)
+	CurrentHealth -= DamageAmount;
+	if (CurrentHealth <= 0)
 	{
 		UGameplayStatics::GetGameMode(GetWorld());
 	}
@@ -257,12 +254,12 @@ float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& D
 
 void ASuperCharacterClass::LoadGame()
 {
-	if(Boss == nullptr)
+	if (Boss == nullptr)
 	{
 		return;
 	}
-	
-	SaveGameClass = Cast<USaveGameClass>(UGameplayStatics::LoadGameFromSlot("MySaveSlot",0));
+
+	SaveGameClass = Cast<USaveGameClass>(UGameplayStatics::LoadGameFromSlot("MySaveSlot", 0));
 	SetActorLocation(SaveGameClass->PlayerLocation);
 	Boss->CurrentHealt = SaveGameClass->BossCurrentHealth;
 	Boss->SetActorLocation(SaveGameClass->BossLocation);
@@ -271,9 +268,9 @@ void ASuperCharacterClass::LoadGame()
 
 void ASuperCharacterClass::Jump()
 {
-	if(IsDead)
+	if (IsDead)
 		return;
-	
+
 	Super::Jump();
 }
 
@@ -283,10 +280,54 @@ void ASuperCharacterClass::ToggleHit()
 
 	FTimerHandle Timerhandle;
 	GetWorldTimerManager().SetTimer(
-	Timerhandle, this, &ASuperCharacterClass::ResetHit, 0.1f);
+		Timerhandle, this, &ASuperCharacterClass::ResetHit, 0.1f);
 }
 
 void ASuperCharacterClass::ResetHit()
 {
 	HasShotHit = false;
+}
+
+void ASuperCharacterClass::CooldownsHandler(float DeltaTime)
+{
+	if (bRechargeStamina && CurrentStamina < MaxStamina)
+	{
+		CurrentStamina += DeltaTime * StaminaRegen;
+	}
+
+	if (bDashIsOnCooldown)
+	{
+		DashCurrentCooldown -= DeltaTime;
+	}
+
+	if (DashCurrentCooldown < 0.0f)
+	{
+		bDashIsOnCooldown = false;
+		DashCurrentCooldown = DashMaxCooldown;
+	}
+
+	if (bShootOnCooldown)
+	{
+		CurrentShootCooldown -= DeltaTime;
+	}
+
+	if (CurrentShootCooldown <= 0)
+	{
+		CurrentShootCooldown = MaxShootCooldown;
+		bShootOnCooldown = false;
+	}
+}
+
+void ASuperCharacterClass::Respawn()
+{
+	IsDead = true;
+
+	FTimerHandle UnusedHandle;
+	GetWorldTimerManager().SetTimer(
+		UnusedHandle, this, &ASuperCharacterClass::RespawnTimer, 1.f);
+}
+
+void ASuperCharacterClass::RespawnTimer()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), *UGameplayStatics::GetCurrentLevelName(GetWorld()), true);
 }

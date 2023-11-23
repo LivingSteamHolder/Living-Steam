@@ -1,6 +1,8 @@
 #include "Shockwave.h"
 
+#include "ChargingBull.h"
 #include "SuperCharacterClass.h"
+#include "Kismet/GameplayStatics.h"
 
 AShockwave::AShockwave()
 {
@@ -35,21 +37,26 @@ void AShockwave::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
 
-	const ASuperCharacterClass* Player = Cast<ASuperCharacterClass>(OtherActor);
+	ASuperCharacterClass* Player = Cast<ASuperCharacterClass>(OtherActor);
 
 	if (!Player)
 		return;
 
+	AActor* Bull = UGameplayStatics::GetActorOfClass(this, AChargingBull::StaticClass());
+
+	ensureMsgf(Bull != nullptr, TEXT("Bull is NULL"));
+
 	FCollisionQueryParams CollisionParameters;
-	CollisionParameters.AddIgnoredActor(this);
+	CollisionParameters.AddIgnoredActors(TArray<AActor*>({this, Bull}));
 
 	FHitResult HitResult;
 	bool Hit = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), Player->GetActorLocation(),
 	                                                ECC_GameTraceChannel1, CollisionParameters);
 	DrawDebugLine(GetWorld(), GetActorLocation(), Player->GetActorLocation(), FColor::Blue, false, 10.f);
+	DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 2.f, 10.f, FColor::Red, false, 10.f);
 
 	if (!Hit || !Cast<ASuperCharacterClass>(HitResult.GetActor()))
 		return;
 
-	UE_LOG(LogTemp, Warning, TEXT("shockwave hit player"));
+	Player->Respawn();
 }

@@ -36,11 +36,11 @@ void AShieldSphere::SpawnShotEffect(float DamageAmount)
 
 void AShieldSphere::TakeDamage(float DamageAmount)
 {
-	if (bVulnerable)
+		AChargingBull* Bull =Cast<AChargingBull>( UGameplayStatics::GetActorOfClass(this, AChargingBull::StaticClass()));
+	if (bVulnerable && !Bull->bVulnerable)
 		SphereHealth-=DamageAmount;
 	if (SphereHealth<=0)
 	{
-		AChargingBull* Bull =Cast<AChargingBull>( UGameplayStatics::GetActorOfClass(this, AChargingBull::StaticClass()));
 		Bull->bVulnerable=true;
 		Destroy();
 	}
