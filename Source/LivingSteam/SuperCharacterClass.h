@@ -171,6 +171,14 @@ private:
 	UPROPERTY(EditAnywhere)
 	class AChargingBull* Boss;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess));
+	bool bShootOnCooldown;
+
+	UPROPERTY(EditAnywhere)
+	float MaxShootCooldown = 0.5;
+
+	float CurrentShootCooldown;
+	
 	class USaveGameClass* SaveGameClass;
 
 	UFUNCTION(BlueprintCallable)
@@ -184,6 +192,8 @@ private:
 	
 	void ToggleHit();
 	void ResetHit();
+
+	void CooldownsHandler(float DeltaTime);
 	
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool HasShotHit = false;

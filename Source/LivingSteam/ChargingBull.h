@@ -53,6 +53,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsCharging = false;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool bVulnerable;
 
 private:
 	class ACharacter* PlayerRef;
@@ -66,7 +68,12 @@ private:
 	FTimerHandle ChargeTimer;
 	
 	UWorld* World;
-	
+
+	UFUNCTION(BlueprintCallable)
+	void ShockWaveAttack();
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, Category = "Shard", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class AActor> BPShockwave;
 	
 	bool bFoundPlayer = false;
 	
@@ -86,8 +93,6 @@ private:
 	float MaxHealth = 100.f;
 
 
-	UPROPERTY(BlueprintReadWrite, meta= (AllowPrivateAccess))
-	bool bVulnerable;
 	
 	
 	UFUNCTION(BlueprintCallable)
