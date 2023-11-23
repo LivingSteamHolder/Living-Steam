@@ -10,6 +10,7 @@
 #include "SuperCharacterClass.generated.h"
 
 class UInputAction;
+
 UCLASS()
 class LIVINGSTEAM_API ASuperCharacterClass : public ACharacter
 {
@@ -23,97 +24,100 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DashCurrentCooldown;
 
-	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float DashMaxCooldown = 0.5;
 
 	UPROPERTY(BlueprintReadWrite)
 	FVector SpawnPoint;
+
+	UFUNCTION(BlueprintCallable)
+	void Respawn();
+
 private:
 	//Components
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComp;
-	
-	UPROPERTY(EditAnywhere,Category="Input")
+
+	UPROPERTY(EditAnywhere, Category="Input")
 	class UInputMappingContext* PlayerMapping;
-	
+
 	//Character Stats
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float MaxHealth = 100;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float CurrentHealth;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float MaxStamina = 10;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float CurrentStamina;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float StaminaRegen = 1.f;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float MaxMovementSpeed = 600;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Base Stats", meta=(AllowPrivateAccess))
 	float RunningSpeedMultiplyer = 2;
 
 	//InputAction
-	UPROPERTY(EditAnywhere,Category="Input")
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* MoveAction;
-	
-	UPROPERTY(EditAnywhere,Category="Input")
+
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* RunAction;
 
-	UPROPERTY(EditAnywhere,Category="Input")
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* LookAction;
 
-	UPROPERTY(EditAnywhere,Category="Input")
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* JumpAction;
 
-	UPROPERTY(EditAnywhere,Category="Input")
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* DashAction;
 
-	UPROPERTY(EditAnywhere,Category="Input")
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* ShootAction;
 
-	UPROPERTY(EditAnywhere,Category="Input")
+	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* ChargeShootAction;
 	bool bRechargeStamina = true;
 
-	
-	
-	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category="Dash", meta=(AllowPrivateAccess="true"))
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Dash", meta=(AllowPrivateAccess="true"))
 	class AActor* CurrentTitan;
-	
+
 	//Shoot Variables
-	UPROPERTY(EditAnywhere,Category="Shoot Stats")
+	UPROPERTY(EditAnywhere, Category="Shoot Stats")
 	float ShootCooldown;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shoot Stats",meta=(AllowPrivateAccess))
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shoot Stats", meta=(AllowPrivateAccess))
 	float Damage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shoot Stats",meta=(AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Shoot Stats", meta=(AllowPrivateAccess))
 	float ChargeDamage;
-	
+
 	//Dash Variables
-	UPROPERTY(EditAnywhere,Category="Dash")
+	UPROPERTY(EditAnywhere, Category="Dash")
 	float DashStartTime;
-	
-	UPROPERTY(EditAnywhere,Category="Dash")
+
+	UPROPERTY(EditAnywhere, Category="Dash")
 	float DashDistance = 20;
 
-	UPROPERTY(EditAnywhere,Category="Dash")
+	UPROPERTY(EditAnywhere, Category="Dash")
 	float DashDuration = 0.5;
 
 	bool bIsDashing;
@@ -121,7 +125,7 @@ private:
 	bool bDashIsOnCooldown;
 
 	float CurrentDashDuration;
-	
+
 	bool bCanMove = true;
 
 	FVector MovementVector3D;
@@ -132,15 +136,15 @@ private:
 	FHitResult HitTarget;
 
 	UCharacterMovementComponent* CharacterMovement;
-	
+
 	//Camera
 	UPROPERTY(EditAnywhere, Category="Camera", meta = (AllowPrivateAccess))
 	class USpringArmComponent* SpringArmComp;
-	UPROPERTY(EditAnywhere,Category="Camera", BlueprintReadOnly, meta = (AllowPrivateAccess))
+	UPROPERTY(EditAnywhere, Category="Camera", BlueprintReadOnly, meta = (AllowPrivateAccess))
 	class UCameraComponent* CameraComp;
-	
+
 	//Niagara
-	UPROPERTY(EditAnywhere,Category="Effects")
+	UPROPERTY(EditAnywhere, Category="Effects")
 	UNiagaraSystem* ShootChargeEffect;
 
 	UPROPERTY(EditAnywhere)
@@ -157,28 +161,30 @@ private:
 	//Shoot
 	void ChargedShoot(const FInputActionValue& Value);
 	void Shoot(const FInputActionValue& Value);
-	
+
 	void StartShootChargeEffect();
 	void EndShootChargeEffect();
 
 	//Dash Function
 	void Dash(const FInputActionValue& Value);
 	void DashInterpolation(float DeltaTime);
-	
+
 	//PlayerState
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	                         AActor* DamageCauser) override;
 
 	UPROPERTY(EditAnywhere)
 	class AChargingBull* Boss;
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (AllowPrivateAccess));
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess))
+	;
 	bool bShootOnCooldown;
 
 	UPROPERTY(EditAnywhere)
 	float MaxShootCooldown = 0.5;
 
 	float CurrentShootCooldown;
-	
+
 	class USaveGameClass* SaveGameClass;
 
 	UFUNCTION(BlueprintCallable)
@@ -186,15 +192,17 @@ private:
 
 	// Shahin
 	void Jump() override;
-	
+
 	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess))
 	bool IsDead = false;
-	
+
 	void ToggleHit();
 	void ResetHit();
 
 	void CooldownsHandler(float DeltaTime);
-	
+
+	void RespawnTimer();
+
 	UPROPERTY(BlueprintReadOnly, meta=(AllowPrivateAccess))
 	bool HasShotHit = false;
 };
