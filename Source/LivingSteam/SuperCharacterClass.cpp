@@ -74,22 +74,8 @@ void ASuperCharacterClass::BeginPlay()
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
-	if (bRechargeStamina && CurrentStamina < MaxStamina)
-	{
-		CurrentStamina+=DeltaTime*StaminaRegen;
-	}
 
-	if(bDashIsOnCooldown)
-	{
-		DashCurrentCooldown-= DeltaTime;
-	}
-
-	if(DashCurrentCooldown < 0.0f)
-	{
-		bDashIsOnCooldown = false;
-		DashCurrentCooldown = DashMaxCooldown;
-	}
+	CooldownsHandler(DeltaTime);
 	
 	if(bIsDashing)
 		DashInterpolation(DeltaTime);
@@ -189,6 +175,11 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 {
 	if(IsDead)
 		return;
+
+	if(bShootOnCooldown)
+	{
+		return;
+	}
 	
 	const FVector StartPosition = GetActorLocation();
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
@@ -212,6 +203,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		}
 	}
 
+	bShootOnCooldown = true;
 	DrawDebugLine(GetWorld(),StartPosition,EndPosition,FColor::Red,false,5,0,5);
 }
 
@@ -289,4 +281,35 @@ void ASuperCharacterClass::ToggleHit()
 void ASuperCharacterClass::ResetHit()
 {
 	HasShotHit = false;
+}
+
+void ASuperCharacterClass::CooldownsHandler(float DeltaTime)
+{
+	if (bRechargeStamina && CurrentStamina < MaxStamina)
+	{
+		CurrentStamina+=DeltaTime*StaminaRegen;
+	}
+
+	if(bDashIsOnCooldown)
+	{
+		DashCurrentCooldown-= DeltaTime;
+	}
+
+	if(DashCurrentCooldown < 0.0f)
+	{
+		bDashIsOnCooldown = false;
+		DashCurrentCooldown = DashMaxCooldown;
+	}
+
+	if(bShootOnCooldown)
+	{
+		CurrentShootCooldown -= DeltaTime;
+	}
+
+	if(CurrentShootCooldown <= 0)
+	{
+		CurrentShootCooldown = MaxShootCooldown;
+		bShootOnCooldown = false;
+	}
+	
 }

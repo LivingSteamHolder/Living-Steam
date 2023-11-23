@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
 #include "SaveGameClass.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Physics/ImmediatePhysics/ImmediatePhysicsShared/ImmediatePhysicsCore.h"
@@ -142,6 +144,8 @@ void AChargingBull::StartNextPhase()
 	PhaseNumber = 2;
 	Target = FVector(0,0,2000);
 	bIsCharging=true;
+	UBlackboardComponent* BBC = UAIBlueprintHelperLibrary::GetBlackboard(this);
+	BBC->SetValueAsInt("PhaseKey", PhaseNumber);
 }
 
 void AChargingBull::SpawnShotEffect(float DamageAmount)
@@ -163,12 +167,16 @@ void AChargingBull::TakeDamage(float DamageAmount)
 		else
 			VulnerableHealth = CurrentHealt-20;
 	}
-			
+}
 
-		
-		
-	
-	
+void AChargingBull::ShockWaveAttack()
+{
+	const auto NewShard = GetWorld()->SpawnActor<AActor>(BPShockwave, GetActorLocation(), GetActorRotation());
+
+	if (NewShard)
+	{
+		NewShard->SetOwner(this);
+	}
 }
 
 void AChargingBull::SaveGame()
