@@ -3,12 +3,14 @@
 
 #include "ChargingBull.h"
 
+#include "Boulder.h"
 #include "GameFramework/Character.h"
 #include "DrawDebugHelpers.h"
 #include "SuperCharacterClass.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
 #include "SaveGameClass.h"
+#include "EntitySystem/MovieSceneEntitySystemRunner.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Physics/ImmediatePhysics/ImmediatePhysicsShared/ImmediatePhysicsCore.h"
 
@@ -29,8 +31,9 @@ void AChargingBull::BeginPlay()
 	PlayerRef = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	World = GetWorld();
 	bIsCharging = false;
-	bVulnerable = true;
+	bVulnerable = false;
 	CurrentHealt = MaxHealth;
+	VulnerableHealth = MaxHealth-20;
 	BullStartPosition = GetActorLocation();
 	PillarsDestroyed = 0.f;
 }
@@ -134,6 +137,11 @@ void AChargingBull::RotateBull()
 	}
 }
 
+void AChargingBull::StartNextPhase()
+{
+
+}
+
 void AChargingBull::SpawnShotEffect(float DamageAmount)
 {
 	TakeDamage(DamageAmount);
@@ -143,8 +151,22 @@ void AChargingBull::TakeDamage(float DamageAmount)
 {
 	if (bVulnerable)
 		this->CurrentHealt -= DamageAmount;
-	if (CurrentHealt <= 0)
+	if(CurrentHealt<0)
 		Destroy();
+	else if(CurrentHealt < VulnerableHealth)
+	{
+		bVulnerable = false;
+		if(PillarsDestroyed<=3)
+			StartNextPhase();
+		else
+			VulnerableHealth = CurrentHealt-20;
+	}
+			
+
+		
+		
+	
+	
 }
 
 void AChargingBull::SaveGame()
