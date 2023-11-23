@@ -6,9 +6,8 @@
 // Sets default values
 ATitan::ATitan()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -18,8 +17,10 @@ void ATitan::BeginPlay()
 
 
 	float HealthCounter = 0;
-	for(ATitanHead* TitanHead : HeadsArray)
+	for (ATitanHead* TitanHead : HeadsArray)
 	{
+		ensureMsgf(TitanHead != nullptr, TEXT("Titanhead is currently NULL"));
+
 		HealthCounter += TitanHead->GetHealth();
 	}
 	MaxHealth = HealthCounter;
@@ -30,10 +31,10 @@ void ATitan::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	float Health = 0;
-		for(ATitanHead* TitanHead : HeadsArray)
-    	{
-			Health += TitanHead->GetHealth();
-    	}
+	for (ATitanHead* TitanHead : HeadsArray)
+	{
+		Health += TitanHead->GetHealth();
+	}
 	CurrentHealth = Health;
 }
 
@@ -41,6 +42,4 @@ void ATitan::Tick(float DeltaTime)
 void ATitan::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
-
