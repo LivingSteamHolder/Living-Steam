@@ -28,7 +28,7 @@ public:
 	void TakeDamage(float DamageAmount);
 private:
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
-	float SphereHealth = 100;
+	float SphereHealth = 50;
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
 	bool bVulnerable = false;
 };
