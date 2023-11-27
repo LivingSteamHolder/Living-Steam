@@ -114,6 +114,11 @@ private:
 	UPROPERTY(EditAnywhere, Category="Dash")
 	float DashStartTime;
 
+	FVector DashEndLocation;
+	FVector DashStartLocation;
+	FVector ForwardDirection;
+	FVector RightDirection;
+
 	UPROPERTY(EditAnywhere, Category="Dash")
 	float DashDistance = 20;
 
