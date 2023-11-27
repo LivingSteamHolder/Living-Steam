@@ -43,6 +43,7 @@ void AChargingBull::BeginPlay()
 // Called every frame
 void AChargingBull::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
 	UE_LOG(LogTemp, Warning, TEXT("%f"), CurrentHealt)
 	//UE_LOG(LogTemp, Warning, TEXT("%f, %f"), Target.X, Target.Y)
 
