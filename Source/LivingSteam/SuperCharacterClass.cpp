@@ -80,7 +80,7 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 	if (bIsDashing)
 		DashInterpolation(DeltaTime);
 
-	//UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorRotation().Pitch,GetActorRotation().Yaw);
+	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorForwardVector().X,GetActorForwardVector().Y);
 }
 
 // Called to bind functionality to input
@@ -135,10 +135,10 @@ void ASuperCharacterClass::Move(const FInputActionValue& Value)
 		const FRotator Rotation = PC->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0.f);
 
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(ForwardDirection, MovementVector.Y);
 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(RightDirection, MovementVector.X);
 	}
 }
@@ -216,6 +216,8 @@ void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 
 	if (Value.Get<bool>() && !bIsDashing && !bDashIsOnCooldown)
 	{
+		DashStartLocation = GetActorLocation();
+		DashEndLocation = GetActorLocation() + (ForwardDirection * MovementVector3D.Y + RightDirection * MovementVector3D.X) * DashDistance;
 		bIsDashing = true;
 		DashStartTime = GetWorld()->GetTimeSeconds();
 	}
@@ -227,14 +229,15 @@ void ASuperCharacterClass::DashInterpolation(float DeltaTime)
 	{
 		float ElapsedTime = GetWorld()->GetTimeSeconds() - DashStartTime;
 		float Alpha = FMath::Clamp(ElapsedTime / DashDuration, 0.f, 1.f);
-		SetActorLocation(FMath::Lerp(GetActorLocation(),
-		                             GetActorForwardVector().GetSafeNormal() * DashDistance + GetActorLocation(),
+		SetActorLocation(FMath::Lerp(DashStartLocation,
+		                             DashEndLocation,
 		                             Alpha), true);
 		//GetActorForwardVector().GetSafeNormal()
 		if (Alpha >= 1.0f)
 		{
 			bDashIsOnCooldown = true;
 			bIsDashing = false;
+			GetMovementComponent()->Velocity = FVector::Zero();
 		}
 	}
 }
