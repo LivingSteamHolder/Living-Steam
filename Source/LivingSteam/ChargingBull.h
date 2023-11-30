@@ -58,7 +58,7 @@ public:
 
 private:
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (AllowPrivateAccesss))
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccesss))
 	UStaticMeshComponent* BodyMesh;
 
 	class ACharacter* PlayerRef;
