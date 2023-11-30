@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
 #include "SaveGameClass.h"
+#include "Components/StaticMeshComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "EntitySystem/MovieSceneEntitySystemRunner.h"
@@ -24,6 +25,9 @@ AChargingBull::AChargingBull()
 	PrimaryActorTick.bCanEverTick = true;
 	MaxHealth = 100;
 	CurrentHealt = MaxHealth;
+
+	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>("Body");
+	BodyMesh->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -44,7 +48,7 @@ void AChargingBull::BeginPlay()
 void AChargingBull::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("%f"), CurrentHealt)
+	UE_LOG(LogTemp, Warning, TEXT("%f"), CurrentHealt);
 	//UE_LOG(LogTemp, Warning, TEXT("%f, %f"), Target.X, Target.Y)
 
 	if (!bIsCharging)
