@@ -57,6 +57,10 @@ public:
 	bool bVulnerable;
 
 private:
+
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccesss))
+	UStaticMeshComponent* BodyMesh;
+
 	class ACharacter* PlayerRef;
 
 	UPROPERTY(BlueprintReadWrite, meta =(AllowPrivateAccess="true"))
