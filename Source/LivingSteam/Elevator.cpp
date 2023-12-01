@@ -18,9 +18,12 @@ AElevator::AElevator()
 
 	StartLocation = CreateDefaultSubobject<UArrowComponent>("StartLocation");
 	StartLocation->SetupAttachment(RootComponent);
+	StartLocation->SetArrowColor(FColor::Green);
+	StartLocation->SetWorldRotation({-90.f, 0.f, 0.f});
 
 	EndLocation = CreateDefaultSubobject<UArrowComponent>("EndLocation");
 	EndLocation->SetupAttachment(RootComponent);
+	EndLocation->SetWorldRotation({90.f, 0.f, 0.f});
 }
 
 void AElevator::CallElevator()
