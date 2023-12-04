@@ -3,6 +3,7 @@
 
 #include "SuperCharacterClass.h"
 
+#include "ChargedProjectile.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "SaveGameClass.h"
@@ -147,7 +148,7 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 {
 	if (IsDead)
 		return;
-
+	
 	const FVector StartPosition = GetActorLocation();
 	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
 	FCollisionQueryParams QueryParam;

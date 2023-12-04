@@ -10,7 +10,7 @@
 #include "SuperCharacterClass.generated.h"
 
 class UInputAction;
-
+class ASuperProjectileClass;
 UCLASS()
 class LIVINGSTEAM_API ASuperCharacterClass : public ACharacter
 {
@@ -157,6 +157,12 @@ private:
 
 	UNiagaraComponent* NiagaraComp;
 
+	UPROPERTY(EditAnywhere,Category="Projectile",meta = (AllowPrivateAccess))
+	TSubclassOf<ASuperProjectileClass> ChargedProjectile;
+
+	UPROPERTY(EditAnywhere,Category="Projectile",meta = (AllowPrivateAccess))
+	TSubclassOf<ASuperProjectileClass> StandardProjectile;
+	
 	//Functions
 	//Movement
 	void Look(const FInputActionValue& Value);

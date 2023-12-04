@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Pawn.h"
 #include "SaveGameClass.h"
+#include "SlowActorEffect.h"
 #include "Components/StaticMeshComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
@@ -28,6 +29,7 @@ AChargingBull::AChargingBull()
 
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>("Body");
 	BodyMesh->SetupAttachment(RootComponent);
+	
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +44,12 @@ void AChargingBull::BeginPlay()
 	VulnerableHealth = MaxHealth-21;
 	BullStartPosition = GetActorLocation();
 	PillarsDestroyed = 0.f;
+	SlowComponent = FindComponentByClass<USlowActorEffect>();
+	if(SlowComponent)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("SLOW EFFECT FOUND"))
+		SlowComponent->DefaultInterpSpeed = BullChargeSpeedInterp;
+	}
 }
 
 // Called every frame
@@ -111,7 +119,7 @@ void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 	IsRotating = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
-	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime, 4000), true);
+	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime,SlowComponent->CurrentInterpSpeed), true);
 	if (GetActorLocation().Equals(Target))
 	{
 		bIsCharging = false;
