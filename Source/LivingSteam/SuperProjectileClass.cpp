@@ -3,6 +3,7 @@
 
 #include "SuperProjectileClass.h"
 
+#include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "ShotActionInterface.h"
@@ -14,17 +15,17 @@ ASuperProjectileClass::ASuperProjectileClass()
 	PrimaryActorTick.bCanEverTick = true;
 	SphereHitBox = CreateDefaultSubobject<USphereComponent>("Hitbox");
 	EffectLocation = CreateDefaultSubobject<USceneComponent>("EffectLocation");
-	SphereHitBox->SetupAttachment(RootComponent);
-	EffectLocation->SetupAttachment(RootComponent);
-
+	SphereHitBox->SetupAttachment(GetRootComponent());
+	EffectLocation->SetupAttachment(GetRootComponent());
+	
 }
 
 // Called when the game starts or when spawned
 void ASuperProjectileClass::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(ShootChargeEffect,EffectLocation,NAME_None,GetActorLocation(),GetActorRotation(),EAttachLocation::Type::KeepRelativeOffset,true);
+	SphereHitBox->OnComponentHit.AddDynamic(this,&ASuperProjectileClass::OnHit);
+	NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(ShootChargeEffect,EffectLocation,NAME_None,EffectLocation->GetComponentLocation(),GetActorRotation(),EAttachLocation::Type::KeepWorldPosition,true);
 }
 
 // Called every frame
@@ -37,11 +38,12 @@ void ASuperProjectileClass::Tick(float DeltaTime)
 
 void ASuperProjectileClass::MoveForward()
 {
-	SetActorLocation(GetActorLocation() + BulletSpeed * GetActorForwardVector().GetSafeNormal() * GetWorld()->GetDeltaSeconds());
+	SetActorLocation(GetActorLocation() + BulletSpeed * GetActorForwardVector().GetSafeNormal() * GetWorld()->GetDeltaSeconds(),true);
+	EffectLocation->SetRelativeLocation(GetActorLocation());
 }
 
-void ASuperProjectileClass::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit)
+void ASuperProjectileClass::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector NormalImpulse, const FHitResult& Hit)
 {
 	IShotActionInterface* Interface = Cast<IShotActionInterface>(OtherActor);
 	if (Interface)
@@ -50,8 +52,12 @@ void ASuperProjectileClass::OnActorHit(UPrimitiveComponent* HitComponent, AActor
 	}
 	else
 	{
-		NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,DefaultImpactHitEffect,Hit.ImpactPoint,Hit.ImpactNormal.Rotation(),FVector(0));
+		NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,DefaultImpactHitEffect,Hit.ImpactPoint,FRotator(0),FVector(1));
 	}
+	Destroy();
+	UE_LOG(LogTemp,Warning,TEXT("HIT %s"),*OtherActor->GetName());
 }
+
+
 
 
