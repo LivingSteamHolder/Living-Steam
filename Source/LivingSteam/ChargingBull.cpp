@@ -119,7 +119,7 @@ void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 	IsRotating = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
-	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime,SlowComponent->CurrentInterpSpeed), true);
+	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime,BullChargeSpeedInterp), true);
 	if (GetActorLocation().Equals(Target))
 	{
 		bIsCharging = false;
