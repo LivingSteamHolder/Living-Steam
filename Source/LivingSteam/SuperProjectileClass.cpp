@@ -15,7 +15,7 @@ ASuperProjectileClass::ASuperProjectileClass()
 	SphereHitBox = CreateDefaultSubobject<USphereComponent>("Hitbox");
 	EffectLocation = CreateDefaultSubobject<USceneComponent>("EffectLocation");
 	SphereHitBox->SetupAttachment(RootComponent);
-	EffectLocation->SetupAttachment(SphereHitBox);
+	EffectLocation->SetupAttachment(RootComponent);
 
 }
 

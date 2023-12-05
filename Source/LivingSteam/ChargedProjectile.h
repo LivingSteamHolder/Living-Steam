@@ -18,6 +18,9 @@ protected:
 	void BeginPlay() override;
 public:
 	virtual void Tick(float DeltaTime) override;
-
+	
+private:
 	void SetSlowDebuff();
+
+	void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit) override;
 };
