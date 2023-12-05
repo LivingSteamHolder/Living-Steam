@@ -148,29 +148,9 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 {
 	if (IsDead)
 		return;
-	
-	const FVector StartPosition = GetActorLocation();
-	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
-	FCollisionQueryParams QueryParam;
-	QueryParam.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
-	                                                 QueryParam, FCollisionResponseParams());
 
-	if (bHit)
-	{
-		ToggleHit();
 
-		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
-		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
-		if (Interface)
-		{
-			Interface->SpawnShotEffect(ChargeDamage);
-		}
-		else
-		{
-			//Spawn default debrie effect
-		}
-	}
+	GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
 }
 
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
@@ -183,31 +163,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		return;
 	}
 
-	const FVector StartPosition = GetActorLocation();
-	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
-	FCollisionQueryParams QueryParam;
-	QueryParam.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
-	                                                 QueryParam, FCollisionResponseParams());
-
-	if (bHit)
-	{
-		ToggleHit();
-
-		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
-		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
-		if (Interface)
-		{
-			Interface->SpawnShotEffect(Damage);
-		}
-		else
-		{
-			//Spawn default debrie effect
-		}
-	}
-
-	bShootOnCooldown = true;
-	DrawDebugLine(GetWorld(), StartPosition, EndPosition, FColor::Red, false, 5, 0, 5);
+	GetWorld()->SpawnActor<ASuperProjectileClass>(StandardProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
