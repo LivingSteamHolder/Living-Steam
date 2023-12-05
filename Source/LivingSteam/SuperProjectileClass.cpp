@@ -3,6 +3,7 @@
 
 #include "SuperProjectileClass.h"
 
+#include "Elevator.h"
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
@@ -54,6 +55,12 @@ void ASuperProjectileClass::OnHit(UPrimitiveComponent* HitComponent, AActor* Oth
 	{
 		NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAtLocation(this,DefaultImpactHitEffect,Hit.ImpactPoint,FRotator(0),FVector(1));
 	}
+
+	if(Hit.Component->ComponentTags.Contains("ElevatorLever"))
+	{
+		Cast<AElevator>(OtherActor)->CallElevator();
+	}
+	
 	Destroy();
 	UE_LOG(LogTemp,Warning,TEXT("HIT %s"),*OtherActor->GetName());
 }
