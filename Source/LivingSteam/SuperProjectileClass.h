@@ -22,6 +22,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere)
+	bool bIsShot;
 private:
 	void MoveForward();
 	
@@ -34,7 +37,6 @@ protected:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hitbox", meta = (AllowPrivateAccess))
 	class USphereComponent* SphereHitBox;
-
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Speed", meta = (AllowPrivateAccess))
 	float BulletSpeed;
@@ -47,5 +49,6 @@ protected:
 
 	class UNiagaraComponent* NiagaraComponent;
 
-	virtual void OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit);
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };
