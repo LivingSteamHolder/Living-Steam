@@ -34,13 +34,16 @@ void ASuperProjectileClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if(bIsShot)
 	MoveForward();
+
+	EffectLocation->SetRelativeLocation(GetActorLocation());
 }
 
 void ASuperProjectileClass::MoveForward()
 {
 	SetActorLocation(GetActorLocation() + BulletSpeed * GetActorForwardVector().GetSafeNormal() * GetWorld()->GetDeltaSeconds(),true);
-	EffectLocation->SetRelativeLocation(GetActorLocation());
+
 }
 
 void ASuperProjectileClass::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

@@ -173,8 +173,8 @@ private:
 	void ChargedShoot(const FInputActionValue& Value);
 	void Shoot(const FInputActionValue& Value);
 
-	void StartShootChargeEffect();
-	void EndShootChargeEffect();
+	void StartShootCharge();
+	void ChargingShootEffect();
 
 	//Dash Function
 	void Dash(const FInputActionValue& Value);
