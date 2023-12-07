@@ -103,6 +103,9 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Completed, this,
 		                                   &ASuperCharacterClass::ChargedShoot);
 
+		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Started, this,
+										   &ASuperCharacterClass::StartShootCharge);
+
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
 }
@@ -150,7 +153,7 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 		return;
 
 
-	GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
+	
 }
 
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
@@ -164,6 +167,18 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 	}
 
 	GetWorld()->SpawnActor<ASuperProjectileClass>(StandardProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
+}
+
+void ASuperCharacterClass::StartShootCharge()
+{
+	ASuperProjectileClass* SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->AttachToComponent(CameraComp,FAttachmentTransformRules::KeepRelativeTransform);
+	SpawnedChargeProjectile->bIsShot = false;
+	SpawnedChargeProjectile->SetActorLocation(CameraComp->GetComponentLocation() + 50);
+}
+
+void ASuperCharacterClass::ChargingShootEffect()
+{
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
