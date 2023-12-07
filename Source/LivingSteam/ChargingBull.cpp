@@ -68,8 +68,6 @@ void AChargingBull::Tick(float DeltaTime)
 	{
 		ExecuteChargeInterpolation(DeltaTime);
 	}
-
-	UE_LOG(LogTemp,Warning,TEXT("BULL SLOW %f"),SlowComponent->CurrentInterpSpeed)
 }
 
 // Called to bind functionality to input

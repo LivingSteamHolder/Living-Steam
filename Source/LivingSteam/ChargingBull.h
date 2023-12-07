@@ -44,8 +44,6 @@ public:
 
 	void StartNextPhase();
 
-
-
 	void SpawnShotEffect(float DamageAmount = 0) override;
 
 	void TakeDamage(float DamageAmount);

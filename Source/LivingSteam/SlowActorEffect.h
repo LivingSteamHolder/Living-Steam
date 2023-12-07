@@ -16,15 +16,16 @@ public:
 	// Sets default values for this component's properties
 	USlowActorEffect();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float DefaultInterpSpeed;
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float CurrentInterpSpeed;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SlowDuration;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float AmountSlowValueDivision;
 	
 	bool bIsSlowedDown = false;

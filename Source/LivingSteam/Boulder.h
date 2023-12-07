@@ -26,4 +26,7 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (AllowPrivateAccess))
 	UStaticMeshComponent* Mesh = nullptr;
+
+	UPROPERTY(BlueprintReadWrite,meta = (AllowPrivateAccess))
+	class USlowActorEffect* SlowComponent;
 };

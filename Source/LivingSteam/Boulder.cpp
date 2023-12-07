@@ -3,6 +3,8 @@
 
 #include "Boulder.h"
 
+#include "SlowActorEffect.h"
+
 // Sets default values
 ABoulder::ABoulder()
 {
@@ -19,6 +21,12 @@ ABoulder::ABoulder()
 void ABoulder::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SlowComponent = FindComponentByClass<USlowActorEffect>();
+	if(SlowComponent)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("SLOW EFFECT FOUND"));
+	}
 }
 
 // Called every frame
