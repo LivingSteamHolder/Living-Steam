@@ -24,7 +24,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-	bool bIsShot;
+	bool bIsShot = true;
+
+	class UNiagaraComponent* NiagaraComponent;
 private:
 	void MoveForward();
 	
@@ -47,7 +49,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float Damage;
 
-	class UNiagaraComponent* NiagaraComponent;
+	
 
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
