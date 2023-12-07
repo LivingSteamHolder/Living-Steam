@@ -43,7 +43,7 @@ ASuperCharacterClass::ASuperCharacterClass()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	EffectLocation = CreateDefaultSubobject<USceneComponent>("ShotChargeEffect");
-	EffectLocation->SetupAttachment(RootComponent);
+	EffectLocation->SetupAttachment(CameraComp);
 }
 
 // Called when the game starts or when spawned
@@ -82,6 +82,7 @@ void ASuperCharacterClass::Tick(float DeltaTime)
 		DashInterpolation(DeltaTime);
 
 	UE_LOG(LogTemp,Warning,TEXT("%f,%f"),GetActorForwardVector().X,GetActorForwardVector().Y);
+	
 }
 
 // Called to bind functionality to input
@@ -105,9 +106,6 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Started, this,
 										   &ASuperCharacterClass::StartShootCharge);
-		
-		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Ongoing, this,
-										   &ASuperCharacterClass::ChargingShot);
 
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
@@ -172,22 +170,17 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 
 void ASuperCharacterClass::StartShootCharge()
 {
-	SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,FVector::Zero() ,CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,FVector(150,80,0),CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->AttachToComponent(CameraComp,FAttachmentTransformRules::KeepRelativeTransform);
 	SpawnedChargeProjectile->bIsShot = false;
-	//GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&ASuperCharacterClass::FullCharged,2,false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&ASuperCharacterClass::FullCharged,2,false);
 }
 
 void ASuperCharacterClass::FullCharged()
 {
-	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("Bool_VortexForce",false);
+	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("Bool_VortexForce",true);
+	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("Bool_Color",false);
 }
-
-void ASuperCharacterClass::ChargingShot()
-{
-	SpawnedChargeProjectile->SetActorRotation(CameraComp->GetForwardVector().Rotation());
-	SpawnedChargeProjectile->SetActorLocation(FVector(GetActorLocation().X - 100,GetActorLocation().Y+ 100,GetActorLocation().Z - 300));
-}
-
 
 void ASuperCharacterClass::ChargingShootEffect()
 {

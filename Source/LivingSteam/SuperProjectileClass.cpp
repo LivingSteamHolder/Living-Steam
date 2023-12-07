@@ -25,8 +25,7 @@ ASuperProjectileClass::ASuperProjectileClass()
 void ASuperProjectileClass::BeginPlay()
 {
 	Super::BeginPlay();
-	SphereHitBox->OnComponentHit.AddDynamic(this,&ASuperProjectileClass::OnHit);
-	NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(ShootChargeEffect,EffectLocation,NAME_None,EffectLocation->GetComponentLocation(),GetActorRotation(),EAttachLocation::Type::KeepWorldPosition,true);
+	NiagaraComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(ShootChargeEffect,EffectLocation,NAME_None,EffectLocation->GetComponentLocation(),GetActorRightVector().Rotation(),EAttachLocation::Type::KeepWorldPosition,true);
 }
 
 // Called every frame
@@ -47,8 +46,9 @@ void ASuperProjectileClass::MoveForward()
 }
 
 void ASuperProjectileClass::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+	FVector normalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp,Warning,TEXT("HIT"));
 	IShotActionInterface* Interface = Cast<IShotActionInterface>(OtherActor);
 	if (Interface)
 	{
@@ -63,11 +63,9 @@ void ASuperProjectileClass::OnHit(UPrimitiveComponent* HitComponent, AActor* Oth
 	{
 		Cast<AElevator>(OtherActor)->CallElevator();
 	}
-	
-	Destroy();
-	UE_LOG(LogTemp,Warning,TEXT("HIT %s"),*OtherActor->GetName());
-}
 
+	Destroy();
+}
 
 
 

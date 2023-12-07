@@ -59,6 +59,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float BullChargeSpeedInterp = 4000;
 
+	class USlowActorEffect* SlowComponent;
 private:
 
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccesss))
@@ -99,7 +100,7 @@ private:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess))
 	float MaxHealth = 100.f;
 
-	class USlowActorEffect* SlowComponent;
+	
 	
 	UFUNCTION(BlueprintCallable)
 	void SaveGame();

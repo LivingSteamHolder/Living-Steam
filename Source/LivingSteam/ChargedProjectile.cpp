@@ -3,36 +3,40 @@
 
 #include "ChargedProjectile.h"
 
+#include "ChargingBull.h"
+#include "Elevator.h"
+#include "NiagaraFunctionLibrary.h"
 #include "SlowActorEffect.h"
-
+#include "Components/SphereComponent.h"
 
 void AChargedProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	Super::bIsShot = false;
+	bIsShot = false;
+	SphereHitBox->OnComponentHit.AddDynamic(this,&AChargedProjectile::OnHit);
 }
 
 void AChargedProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp,Warning,TEXT("%s"),*GetActorLocation().ToString())
 }
 
-void AChargedProjectile::SetSlowDebuff()
-{
-	
-}
 
-void AChargedProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit)
+void AChargedProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	FVector normalImpulse, const FHitResult& Hit)
 {
-	Super::OnHit(HitComponent, OtherActor, OtherComp, normalImpulse, Hit);
-
-	USlowActorEffect* SlowActorEffect = OtherActor->FindComponentByClass<USlowActorEffect>();
-	if(SlowActorEffect)
+	UE_LOG(LogTemp,Warning,TEXT("HIT HIT %s"),*OtherActor->GetName());
+	if(USlowActorEffect* SlowActorEffect = OtherActor->FindComponentByClass<USlowActorEffect>())
 	{
-		SlowActorEffect->CurrentInterpSpeed /= SlowActorEffect->AmountSlowValueDivision;
-		SlowActorEffect->bIsSlowedDown;
+		UE_LOG(LogTemp,Warning,TEXT("FOUND SLOW ON BULL"));
+		if(SlowActorEffect->CurrentInterpSpeed >= SlowActorEffect->DefaultInterpSpeed/SlowActorEffect->AmountSlowValueDivision)
+		{
+			SlowActorEffect->CurrentInterpSpeed /= SlowActorEffect->AmountSlowValueDivision;
+			SlowActorEffect->bIsSlowedDown = true;
+		}
 	}
+	
+	Super::OnHit(HitComponent, OtherActor, OtherComp, normalImpulse, Hit);
 }
+
 

@@ -68,6 +68,8 @@ void AChargingBull::Tick(float DeltaTime)
 	{
 		ExecuteChargeInterpolation(DeltaTime);
 	}
+
+	UE_LOG(LogTemp,Warning,TEXT("BULL SLOW %f"),SlowComponent->CurrentInterpSpeed)
 }
 
 // Called to bind functionality to input
@@ -119,7 +121,7 @@ void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 	IsRotating = false;
 
 	UE_LOG(LogTemp, Warning, TEXT("HEJ"))
-	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime,BullChargeSpeedInterp), true);
+	SetActorLocation(FMath::VInterpConstantTo(GetActorLocation(), Target, DeltaTime,SlowComponent->CurrentInterpSpeed), true);
 	if (GetActorLocation().Equals(Target))
 	{
 		bIsCharging = false;

@@ -15,12 +15,12 @@ class LIVINGSTEAM_API AChargedProjectile : public ASuperProjectileClass
 	GENERATED_BODY()
 
 protected:
-	void BeginPlay() override;
+	virtual void BeginPlay() override;
 public:
 	virtual void Tick(float DeltaTime) override;
-	
-private:
-	void SetSlowDebuff();
 
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit);
+private:
+
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit) override;
 };

@@ -11,7 +11,7 @@ class LIVINGSTEAM_API ASuperProjectileClass : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
+public:		
 	// Sets default values for this actor's properties
 	ASuperProjectileClass();
 
@@ -27,6 +27,9 @@ public:
 	bool bIsShot = true;
 
 	class UNiagaraComponent* NiagaraComponent;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hitbox")
+	class USphereComponent* SphereHitBox;
 private:
 	void MoveForward();
 	
@@ -37,9 +40,6 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category= "Effects", meta = (AllowPrivateAccess))
 	class UNiagaraSystem* DefaultImpactHitEffect;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Hitbox", meta = (AllowPrivateAccess))
-	class USphereComponent* SphereHitBox;
-	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,Category="Speed", meta = (AllowPrivateAccess))
 	float BulletSpeed;
 
@@ -49,8 +49,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	float Damage;
 
+	virtual void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit);
 	
-
-	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };
