@@ -53,6 +53,8 @@ void AShieldSphere::TakeDamage(float DamageAmount)
 	{
 		if (bVulnerable)
 			SphereHealth-=DamageAmount;
+		if(SphereHealth<=0)
+			bAlive = false;
 	}
 
 }
