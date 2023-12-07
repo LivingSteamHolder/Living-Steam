@@ -106,9 +106,17 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Started, this,
 										   &ASuperCharacterClass::StartShootCharge);
+		
+		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Canceled, this,
+								   &ASuperCharacterClass::CancelCharge);
 
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
+}
+
+void ASuperCharacterClass::CancelCharge()
+{
+	SpawnedChargeProjectile->Destroy();
 }
 
 void ASuperCharacterClass::Look(const FInputActionValue& Value)
