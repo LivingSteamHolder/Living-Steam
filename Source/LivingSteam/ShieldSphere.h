@@ -31,4 +31,6 @@ private:
 	float SphereHealth = 50;
 	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
 	bool bVulnerable = false;
+	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess))
+	bool bAlive = true;
 };

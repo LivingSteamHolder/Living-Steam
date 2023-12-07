@@ -103,6 +103,12 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Completed, this,
 		                                   &ASuperCharacterClass::ChargedShoot);
 
+		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Started, this,
+										   &ASuperCharacterClass::StartShootCharge);
+		
+		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Ongoing, this,
+										   &ASuperCharacterClass::ChargingShot);
+
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
 }
@@ -115,11 +121,6 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
-
-	if (NiagaraComp)
-	{
-		EffectLocation->SetRelativeRotation(CameraComp->GetForwardVector().Rotation());
-	}
 }
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
@@ -148,29 +149,12 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 {
 	if (IsDead)
 		return;
+
+	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("beenShot",true);
+	SpawnedChargeProjectile->SetActorRotation(CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SpawnedChargeProjectile->bIsShot = true;
 	
-	const FVector StartPosition = GetActorLocation();
-	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
-	FCollisionQueryParams QueryParam;
-	QueryParam.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
-	                                                 QueryParam, FCollisionResponseParams());
-
-	if (bHit)
-	{
-		ToggleHit();
-
-		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
-		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
-		if (Interface)
-		{
-			Interface->SpawnShotEffect(ChargeDamage);
-		}
-		else
-		{
-			//Spawn default debrie effect
-		}
-	}
 }
 
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
@@ -183,31 +167,30 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		return;
 	}
 
-	const FVector StartPosition = GetActorLocation();
-	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
-	FCollisionQueryParams QueryParam;
-	QueryParam.AddIgnoredActor(this);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
-	                                                 QueryParam, FCollisionResponseParams());
+	GetWorld()->SpawnActor<ASuperProjectileClass>(StandardProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
+}
 
-	if (bHit)
-	{
-		ToggleHit();
+void ASuperCharacterClass::StartShootCharge()
+{
+	SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,FVector::Zero() ,CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->bIsShot = false;
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&ASuperCharacterClass::FullCharged,2,false);
+}
 
-		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
-		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
-		if (Interface)
-		{
-			Interface->SpawnShotEffect(Damage);
-		}
-		else
-		{
-			//Spawn default debrie effect
-		}
-	}
+void ASuperCharacterClass::FullCharged()
+{
+	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("Bool_VortexForce",false);
+}
 
-	bShootOnCooldown = true;
-	DrawDebugLine(GetWorld(), StartPosition, EndPosition, FColor::Red, false, 5, 0, 5);
+void ASuperCharacterClass::ChargingShot()
+{
+	SpawnedChargeProjectile->SetActorRotation(CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->SetActorLocation(FVector(GetActorLocation().X - 100,GetActorLocation().Y+ 100,GetActorLocation().Z - 300));
+}
+
+
+void ASuperCharacterClass::ChargingShootEffect()
+{
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)
@@ -255,6 +238,7 @@ float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& D
 
 	return 0;
 }
+
 
 void ASuperCharacterClass::LoadGame()
 {

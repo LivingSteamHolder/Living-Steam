@@ -198,6 +198,14 @@ private:
 
 	class USaveGameClass* SaveGameClass;
 
+	ASuperProjectileClass* SpawnedChargeProjectile;
+
+	FTimerHandle TimerHandle;
+
+	void FullCharged();
+
+	void ChargingShot();
+
 	UFUNCTION(BlueprintCallable)
 	void LoadGame();
 

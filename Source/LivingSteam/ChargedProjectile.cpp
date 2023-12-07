@@ -8,6 +8,7 @@
 void AChargedProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+	Super::bIsShot = false;
 }
 
 void AChargedProjectile::Tick(float DeltaTime)
