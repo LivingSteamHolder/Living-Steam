@@ -105,6 +105,9 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Started, this,
 										   &ASuperCharacterClass::StartShootCharge);
+		
+		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Ongoing, this,
+										   &ASuperCharacterClass::ChargingShot);
 
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
@@ -118,11 +121,6 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
 	AddControllerPitchInput(LookAxisVector.Y);
 	AddControllerYawInput(LookAxisVector.X);
-
-	if (NiagaraComp)
-	{
-		EffectLocation->SetRelativeRotation(CameraComp->GetForwardVector().Rotation());
-	}
 }
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
@@ -152,7 +150,10 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 	if (IsDead)
 		return;
 
-
+	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("beenShot",true);
+	SpawnedChargeProjectile->SetActorRotation(CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	SpawnedChargeProjectile->bIsShot = true;
 	
 }
 
@@ -171,11 +172,22 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 
 void ASuperCharacterClass::StartShootCharge()
 {
-	ASuperProjectileClass* SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
-	SpawnedChargeProjectile->AttachToComponent(CameraComp,FAttachmentTransformRules::KeepRelativeTransform);
+	SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,FVector::Zero() ,CameraComp->GetForwardVector().Rotation());
 	SpawnedChargeProjectile->bIsShot = false;
-	SpawnedChargeProjectile->SetActorLocation(CameraComp->GetComponentLocation() + 50);
+	//GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&ASuperCharacterClass::FullCharged,2,false);
 }
+
+void ASuperCharacterClass::FullCharged()
+{
+	SpawnedChargeProjectile->NiagaraComponent->SetNiagaraVariableBool("Bool_VortexForce",false);
+}
+
+void ASuperCharacterClass::ChargingShot()
+{
+	SpawnedChargeProjectile->SetActorRotation(CameraComp->GetForwardVector().Rotation());
+	SpawnedChargeProjectile->SetActorLocation(FVector(GetActorLocation().X - 100,GetActorLocation().Y+ 100,GetActorLocation().Z - 300));
+}
+
 
 void ASuperCharacterClass::ChargingShootEffect()
 {
@@ -226,6 +238,7 @@ float ASuperCharacterClass::TakeDamage(float DamageAmount, FDamageEvent const& D
 
 	return 0;
 }
+
 
 void ASuperCharacterClass::LoadGame()
 {
