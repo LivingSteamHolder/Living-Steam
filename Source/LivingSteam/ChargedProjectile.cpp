@@ -5,7 +5,6 @@
 
 #include "SlowActorEffect.h"
 
-
 void AChargedProjectile::BeginPlay()
 {
 	Super::BeginPlay();
@@ -14,6 +13,7 @@ void AChargedProjectile::BeginPlay()
 void AChargedProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	UE_LOG(LogTemp,Warning,TEXT("%s"),*GetActorLocation().ToString())
 }
 
@@ -22,10 +22,10 @@ void AChargedProjectile::SetSlowDebuff()
 	
 }
 
-void AChargedProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+void AChargedProjectile::OnActorHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector normalImpulse, const FHitResult& Hit)
 {
-	Super::OnHit(HitComponent, OtherActor, OtherComp, normalImpulse, Hit);
+	Super::OnActorHit(HitComponent, OtherActor, OtherComp, normalImpulse, Hit);
 
 	USlowActorEffect* SlowActorEffect = OtherActor->FindComponentByClass<USlowActorEffect>();
 	if(SlowActorEffect)

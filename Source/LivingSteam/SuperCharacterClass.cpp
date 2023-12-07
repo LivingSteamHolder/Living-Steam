@@ -103,9 +103,6 @@ void ASuperCharacterClass::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Completed, this,
 		                                   &ASuperCharacterClass::ChargedShoot);
 
-		EnhancedInputComponent->BindAction(ChargeShootAction, ETriggerEvent::Started, this,
-										   &ASuperCharacterClass::StartShootCharge);
-
 		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ASuperCharacterClass::Shoot);
 	}
 }
@@ -151,9 +148,29 @@ void ASuperCharacterClass::ChargedShoot(const FInputActionValue& Value)
 {
 	if (IsDead)
 		return;
-
-
 	
+	const FVector StartPosition = GetActorLocation();
+	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
+	FCollisionQueryParams QueryParam;
+	QueryParam.AddIgnoredActor(this);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
+	                                                 QueryParam, FCollisionResponseParams());
+
+	if (bHit)
+	{
+		ToggleHit();
+
+		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
+		if (Interface)
+		{
+			Interface->SpawnShotEffect(ChargeDamage);
+		}
+		else
+		{
+			//Spawn default debrie effect
+		}
+	}
 }
 
 void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
@@ -166,19 +183,31 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 		return;
 	}
 
-	GetWorld()->SpawnActor<ASuperProjectileClass>(StandardProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
-}
+	const FVector StartPosition = GetActorLocation();
+	const FVector EndPosition = StartPosition + CameraComp->GetForwardVector() * 10000;
+	FCollisionQueryParams QueryParam;
+	QueryParam.AddIgnoredActor(this);
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitTarget, StartPosition, EndPosition, ECC_WorldDynamic,
+	                                                 QueryParam, FCollisionResponseParams());
 
-void ASuperCharacterClass::StartShootCharge()
-{
-	ASuperProjectileClass* SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
-	SpawnedChargeProjectile->AttachToComponent(CameraComp,FAttachmentTransformRules::KeepRelativeTransform);
-	SpawnedChargeProjectile->bIsShot = false;
-	SpawnedChargeProjectile->SetActorLocation(CameraComp->GetComponentLocation() + 50);
-}
+	if (bHit)
+	{
+		ToggleHit();
 
-void ASuperCharacterClass::ChargingShootEffect()
-{
+		//UE_LOG(LogTemp,Warning,TEXT("HIT"));
+		IShotActionInterface* Interface = Cast<IShotActionInterface>(HitTarget.GetActor());
+		if (Interface)
+		{
+			Interface->SpawnShotEffect(Damage);
+		}
+		else
+		{
+			//Spawn default debrie effect
+		}
+	}
+
+	bShootOnCooldown = true;
+	DrawDebugLine(GetWorld(), StartPosition, EndPosition, FColor::Red, false, 5, 0, 5);
 }
 
 void ASuperCharacterClass::Dash(const FInputActionValue& Value)

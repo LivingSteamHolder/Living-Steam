@@ -37,11 +37,7 @@ void AElevator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FVector Location = StartLocation->GetComponentLocation();
-
-	Location.Z += 3000.f;
-
-	MeshComponent->SetWorldLocation(Location);
+	MeshComponent->SetWorldLocation(StartLocation->GetComponentLocation());
 }
 
 // Called every frame
@@ -52,11 +48,9 @@ void AElevator::Tick(float DeltaTime)
 	if (!IsActive)
 		return;
 
-	FVector TargetLocation = IsGoingDown
-		                         ? EndLocation->GetComponentLocation()
-		                         : StartLocation->GetComponentLocation();
-
-	TargetLocation.Z += 3000.f;
+	const FVector TargetLocation = IsGoingDown
+		                               ? EndLocation->GetComponentLocation()
+		                               : StartLocation->GetComponentLocation();
 
 	if (MeshComponent->GetComponentLocation() == TargetLocation)
 	{
@@ -64,7 +58,6 @@ void AElevator::Tick(float DeltaTime)
 		return;
 	}
 
-	MeshComponent->SetWorldLocation(FMath::VInterpConstantTo(MeshComponent->GetComponentLocation(), TargetLocation,
-	                                                         DeltaTime,
-	                                                         ElevatorSpeed));
+	MeshComponent->SetWorldLocation(FMath::VInterpTo(MeshComponent->GetComponentLocation(), TargetLocation, DeltaTime,
+	                                                 ElevatorSpeed));
 }
