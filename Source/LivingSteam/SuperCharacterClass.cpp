@@ -125,8 +125,8 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 		return;
 
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-	AddControllerPitchInput(LookAxisVector.Y);
-	AddControllerYawInput(LookAxisVector.X);
+	AddControllerPitchInput(LookAxisVector.Y*MouseSensitivity);
+	AddControllerYawInput(LookAxisVector.X*MouseSensitivity);
 }
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
