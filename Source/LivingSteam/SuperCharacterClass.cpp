@@ -125,8 +125,8 @@ void ASuperCharacterClass::Look(const FInputActionValue& Value)
 		return;
 
 	const FVector2D LookAxisVector = Value.Get<FVector2D>();
-	AddControllerPitchInput(LookAxisVector.Y);
-	AddControllerYawInput(LookAxisVector.X);
+	AddControllerPitchInput(LookAxisVector.Y*MouseSensitivity);
+	AddControllerYawInput(LookAxisVector.X*MouseSensitivity);
 }
 
 void ASuperCharacterClass::Move(const FInputActionValue& Value)
@@ -205,6 +205,16 @@ void ASuperCharacterClass::Dash(const FInputActionValue& Value)
 		DashEndLocation = GetActorLocation() + (ForwardDirection * MovementVector3D.Y + RightDirection * MovementVector3D.X) * DashDistance;
 		bIsDashing = true;
 		DashStartTime = GetWorld()->GetTimeSeconds();
+		FVector StandingFloorNormal = GetCharacterMovement()->CurrentFloor.HitResult.Normal;
+		FVector DashDirection = (ForwardDirection * MovementVector3D.Y + RightDirection * MovementVector3D.X);
+		if(!StandingFloorNormal.Equals(GetActorUpVector()) && !GetCharacterMovement()->IsFalling())
+		{
+			FVector CrossVector = FVector::CrossProduct(StandingFloorNormal, -DashDirection);
+			FRotator Rotation = UKismetMathLibrary::RotatorFromAxisAndAngle(CrossVector,90 - StandingFloorNormal.Rotation().Pitch);
+			FVector CrossCrossVector = FVector::CrossProduct(StandingFloorNormal,CrossVector.GetSafeNormal());
+			CrossCrossVector.Z += 0.1;
+			DashEndLocation = GetActorLocation() + CrossCrossVector.GetSafeNormal() * DashDistance;
+		}
 	}
 }
 

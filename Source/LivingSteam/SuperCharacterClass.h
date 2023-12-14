@@ -150,6 +150,9 @@ private:
 	UPROPERTY(EditAnywhere, Category="Camera", BlueprintReadOnly, meta = (AllowPrivateAccess))
 	class UCameraComponent* CameraComp;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess))
+	float MouseSensitivity;
+
 	//Niagara
 	UPROPERTY(EditAnywhere, Category="Effects")
 	UNiagaraSystem* ShootChargeEffect;
