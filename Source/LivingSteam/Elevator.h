@@ -42,5 +42,7 @@ private:
 	float ElevatorSpeed = 1500.f;
 
 	bool IsGoingDown = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
 	bool IsActive = false;
 };

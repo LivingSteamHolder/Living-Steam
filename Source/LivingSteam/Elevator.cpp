@@ -28,6 +28,7 @@ AElevator::AElevator()
 
 void AElevator::CallElevator()
 {
+
 	IsGoingDown = !IsGoingDown;
 	IsActive = true;
 }

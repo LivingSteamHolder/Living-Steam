@@ -45,6 +45,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Respawn();
 
+	// Shahin
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	FVector StartLocation;
+
+	UFUNCTION(BlueprintCallable)
+	void ResetLocation();
+
 private:
 	//Components
 	UPROPERTY(EditAnywhere)
