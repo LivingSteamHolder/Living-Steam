@@ -50,6 +50,10 @@ ASuperCharacterClass::ASuperCharacterClass()
 void ASuperCharacterClass::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Shahin
+	StartLocation = GetActorLocation();
+	
 	CurrentHealth = MaxHealth;
 	CurrentStamina = MaxStamina;
 
@@ -324,6 +328,11 @@ void ASuperCharacterClass::Respawn()
 	FTimerHandle UnusedHandle;
 	GetWorldTimerManager().SetTimer(
 		UnusedHandle, this, &ASuperCharacterClass::RespawnTimer, 1.f);
+}
+
+void ASuperCharacterClass::ResetLocation()
+{
+	SetActorLocation(StartLocation);
 }
 
 void ASuperCharacterClass::RespawnTimer()
