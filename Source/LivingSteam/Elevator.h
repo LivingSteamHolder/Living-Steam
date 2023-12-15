@@ -39,7 +39,7 @@ private:
 	UArrowComponent* EndLocation = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess))
-	float ElevatorSpeed = 800.f;
+	float ElevatorSpeed = 1500.f;
 
 	bool IsGoingDown = false;
 	bool IsActive = false;
