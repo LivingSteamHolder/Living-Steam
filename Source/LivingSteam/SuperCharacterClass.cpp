@@ -79,7 +79,7 @@ void ASuperCharacterClass::BeginPlay()
 void ASuperCharacterClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	CooldownsHandler(DeltaTime);
 
 	if (bIsDashing)
@@ -323,11 +323,18 @@ void ASuperCharacterClass::CooldownsHandler(float DeltaTime)
 
 void ASuperCharacterClass::Respawn()
 {
-	IsDead = true;
+	if (GetWorld()->GetName().Equals("Nobi_whitebox_level"))
+	{
+		ResetLocation();
+	}
+	else
+	{
+		IsDead = true;
 
-	FTimerHandle UnusedHandle;
-	GetWorldTimerManager().SetTimer(
-		UnusedHandle, this, &ASuperCharacterClass::RespawnTimer, 1.f);
+		FTimerHandle UnusedHandle;
+		GetWorldTimerManager().SetTimer(
+			UnusedHandle, this, &ASuperCharacterClass::RespawnTimer, 1.f);
+	}
 }
 
 void ASuperCharacterClass::ResetLocation()
