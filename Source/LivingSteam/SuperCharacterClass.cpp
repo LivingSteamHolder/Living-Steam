@@ -178,6 +178,7 @@ void ASuperCharacterClass::Shoot(const FInputActionValue& Value)
 	}
 
 	GetWorld()->SpawnActor<ASuperProjectileClass>(StandardProjectile,GetActorLocation(),CameraComp->GetForwardVector().Rotation());
+	bShootOnCooldown = true;
 }
 
 void ASuperCharacterClass::StartShootCharge()
@@ -185,7 +186,7 @@ void ASuperCharacterClass::StartShootCharge()
 	SpawnedChargeProjectile = GetWorld()->SpawnActor<ASuperProjectileClass>(ChargedProjectile,FVector(150,80,0),CameraComp->GetForwardVector().Rotation());
 	SpawnedChargeProjectile->AttachToComponent(CameraComp,FAttachmentTransformRules::KeepRelativeTransform);
 	SpawnedChargeProjectile->bIsShot = false;
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&ASuperCharacterClass::FullCharged,2,false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle,this,&ASuperCharacterClass::FullCharged,1.5,false);
 }
 
 void ASuperCharacterClass::FullCharged()
