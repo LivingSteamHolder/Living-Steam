@@ -109,8 +109,9 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 		Target.Z = GetActorLocation().Z;
 
 		//GetWorld()->GetTimerManager().SetTimer(ChargeTimer, [this](){bIsCharging = true;}, 2.f, false );
+		return true;
 	}
-	return BHit;
+	return false;
 }
 
 void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
