@@ -53,6 +53,25 @@ public:
 	void ResetLocation();
 
 private:
+	UFUNCTION(BlueprintCallable)
+	void WriteSensitivityToFile(const float sens)
+	{
+		FFileHelper::SaveStringToFile(FString("sensitivity=") + FString::SanitizeFloat(sens), *(FPaths::ProjectDir() + "test.txt"));
+	}
+
+	UFUNCTION(BlueprintCallable)
+	float GetSensitivityFromFile()
+	{
+		FString Result;
+		
+		FFileHelper::LoadFileToString(Result, *(FPaths::ProjectDir() + "test.txt"));
+
+		FString Left, Right;
+		Result.Split(TEXT("="), &Left, &Right);
+		
+		return FCString::Atof(*Right);
+	}
+	
 	//Components
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* MeshComp;
@@ -158,7 +177,7 @@ private:
 	class UCameraComponent* CameraComp;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (AllowPrivateAccess))
-	float MouseSensitivity;
+	float MouseSensitivity = 1.f;
 
 	//Niagara
 	UPROPERTY(EditAnywhere, Category="Effects")
