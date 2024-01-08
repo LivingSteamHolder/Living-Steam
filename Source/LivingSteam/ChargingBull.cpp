@@ -76,6 +76,7 @@ void AChargingBull::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+//Checks if bull can charge towards player and if so sets target chargelocation
 bool AChargingBull::ChargeAttack(float BoxSize)
 {
 	FCollisionQueryParams params;
@@ -114,6 +115,7 @@ bool AChargingBull::ChargeAttack(float BoxSize)
 	return false;
 }
 
+//Interpolates to target location wich is used for charge
 void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 {
 	IsPreparingToCharge = false;
@@ -127,6 +129,7 @@ void AChargingBull::ExecuteChargeInterpolation(float DeltaTime)
 	}
 }
 
+//Rotates bull to always face the player
 void AChargingBull::RotateBull()
 {
 	if (PlayerRef)
@@ -153,6 +156,7 @@ void AChargingBull::RotateBull()
 	}
 }
 
+//Sets new conditions for phase 2
 void AChargingBull::StartNextPhase()
 {
 	PhaseNumber = 2;
@@ -167,6 +171,7 @@ void AChargingBull::SpawnShotEffect(float DamageAmount)
 	TakeDamage(DamageAmount);
 }
 
+//Takes damage if vulnerable
 void AChargingBull::TakeDamage(float DamageAmount)
 {
 	if (bVulnerable)
@@ -183,6 +188,7 @@ void AChargingBull::TakeDamage(float DamageAmount)
 	}
 }
 
+//Spawns a shockwave at actors location
 void AChargingBull::ShockWaveAttack()
 {
 	const auto NewShard = GetWorld()->SpawnActor<AActor>(BPShockwave, GetActorLocation(), GetActorRotation());
@@ -206,6 +212,7 @@ void AChargingBull::SaveGame()
 	}
 }
 
+//Keeps count of destroyed pillars
 void AChargingBull::AddDestroyedPillar()
 {
 	PillarsDestroyed += 1.f;

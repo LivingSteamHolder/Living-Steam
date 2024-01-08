@@ -34,6 +34,8 @@ void AShieldSphere::SpawnShotEffect(float DamageAmount)
 	//Spawn Particle effect
 }
 
+
+//Takes damage if vulnerable
 void AShieldSphere::TakeDamage(float DamageAmount)
 {
 		AChargingBull* Bull =Cast<AChargingBull>( UGameplayStatics::GetActorOfClass(this, AChargingBull::StaticClass()));
