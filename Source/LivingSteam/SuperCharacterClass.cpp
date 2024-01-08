@@ -50,6 +50,14 @@ ASuperCharacterClass::ASuperCharacterClass()
 void ASuperCharacterClass::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetSensitivityFromFile() == 0.f)
+	{
+		WriteSensitivityToFile(1.f);
+		MouseSensitivity = 1.f;
+	}
+
+	MouseSensitivity = GetSensitivityFromFile();
 	
 	// Shahin
 	StartLocation = GetActorLocation();
