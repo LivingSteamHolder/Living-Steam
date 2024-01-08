@@ -50,7 +50,7 @@ ASuperCharacterClass::ASuperCharacterClass()
 void ASuperCharacterClass::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
 	// Shahin
 	StartLocation = GetActorLocation();
 	
